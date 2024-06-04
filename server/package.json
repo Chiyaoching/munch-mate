@@ -1,0 +1,33 @@
+{
+  "name": "munch-mate",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Seven Yaoching-Chi",
+  "bin": "index.js",
+  "pkg": {
+    "assets": [
+      "../build/**/*"
+    ],
+    "outputPath": "bin"
+  },
+  "dependencies": {
+    "axios": "^0.19.0",
+    "body-parser": "^1.19.0",
+    "compression": "^1.7.4",
+    "consola": "^2.11.3",
+    "cookie-parser": "^1.4.6",
+    "crypto-js": "^4.1.1",
+    "express": "^4.16.2",
+    "express-session": "^1.15.6",
+    "jsonwebtoken": "^9.0.1",
+    "log4js": "^6.4.4",
+    "moment": "^2.25.3",
+    "pako": "^2.1.0",
+    "uuid": "^3.3.3",
+    "ws": "^8.7.0",
+    "yargs": "^16.0.3"
+  },
+  "devDependencies": {
+    "rcedit": "^3.0.1"
+  }
+}
