@@ -2,7 +2,7 @@
  * @Author: Seven Yaoching-Chi 
  * @Date: 2024-05-23 18:45:26 
  * @Last Modified by: Seven Yaoching-Chi
- * @Last Modified time: 2024-05-23 18:49:31
+ * @Last Modified time: 2024-06-04 21:23:40
  */
 
 const path = require('path');
@@ -16,7 +16,9 @@ const cookieParser = require('cookie-parser');
 const {
   log4js, log, err, warn,
 } = require('./helper/logger');
-const {port} = require('./config');
+const {port, mongo_url} = require('./config');
+const mongoose = require('mongoose');
+
 require('./constant/global');
 
 const infoLog = (...args) => log('[SERVER]', ...args);
@@ -41,11 +43,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(compression()); // gzip mode.
 
 
+mongoose.connect(mongo_url, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
 http.createServer(app).listen(port, () => { infoLog(`Server running at: http://localhost:${port}`); });
 
 app.use('/', express.static(path.join(__dirname, '../build')));
-app.use('/v1', require('./api/common'));
-app.use('/v1/backend', require('./api/backend'));
+app.use('/api/prompt', require('./api/openai'));
+app.use('/api/auth', require('./api/auth'));
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../build/index.html'));
