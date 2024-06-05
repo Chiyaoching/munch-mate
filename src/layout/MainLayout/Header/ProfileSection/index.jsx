@@ -37,6 +37,8 @@ import User1 from 'assets/images/users/user-round.svg';
 // assets
 import { IconLogout, IconSearch, IconSettings, IconUser } from '@tabler/icons-react';
 
+import { isAuthenticated } from 'utils/auth';
+
 // ==============================|| PROFILE MENU ||============================== //
 
 const ProfileSection = () => {
@@ -55,6 +57,10 @@ const ProfileSection = () => {
   const anchorRef = useRef(null);
   const handleLogout = async () => {
     console.log('Logout');
+    localStorage.removeItem('token')
+    if (!isAuthenticated()) {
+      navigate('/login')
+    }
   };
 
   const handleClose = (event) => {
@@ -87,7 +93,20 @@ const ProfileSection = () => {
 
   return (
     <>
-      <Chip
+      <Avatar
+        // src={User1}
+        sx={{
+          ...theme.typography.mediumAvatar,
+          // margin: '8px 0 8px 8px !important',
+          cursor: 'pointer'
+        }}
+        ref={anchorRef}
+        aria-controls={open ? 'menu-list-grow' : undefined}
+        aria-haspopup="true"
+        onClick={handleToggle}
+        color="inherit"
+      />
+      {/* <Chip
         sx={{
           height: '48px',
           alignItems: 'center',
@@ -112,7 +131,7 @@ const ProfileSection = () => {
             // src={User1}
             sx={{
               ...theme.typography.mediumAvatar,
-              margin: '8px 0 8px 8px !important',
+              // margin: '8px 0 8px 8px !important',
               cursor: 'pointer'
             }}
             ref={anchorRef}
@@ -128,7 +147,7 @@ const ProfileSection = () => {
         aria-haspopup="true"
         onClick={handleToggle}
         color="primary"
-      />
+      /> */}
       <Popper
         placement="bottom-end"
         open={open}

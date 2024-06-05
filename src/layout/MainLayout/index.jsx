@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 // material-ui
@@ -11,13 +11,15 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { CssBaseline, styled, useTheme } from '@mui/material';
 import Header from './Header';
 import Sidebar from './Sidebar';
-import Customization from '../Customization';
+// import Customization from '../Customization';
 import Breadcrumbs from 'ui-component/extended/Breadcrumbs';
 import { SET_MENU } from 'store/actions';
 import { drawerWidth } from 'store/constant';
 
 // assets
 import { IconChevronRight } from '@tabler/icons-react';
+
+import { isAuthenticated } from 'utils/auth';
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' && prop !== 'theme' })(({ theme, open }) => ({
   ...theme.typography.mainContent,
@@ -90,7 +92,7 @@ const MainLayout = () => {
       <Main theme={theme} open={leftDrawerOpened}>
         {/* breadcrumb */}
         {/* <Breadcrumbs separator={IconChevronRight} navigation={navigation} icon title rightAlign /> */}
-        <Outlet />
+        {isAuthenticated() ? <Outlet /> : <Navigate to="/login" />}
       </Main>
       {/* <Customization /> */}
     </Box>

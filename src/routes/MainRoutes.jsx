@@ -27,42 +27,42 @@ const MainRoutes = {
       path: '/',
       element: <DashboardDefault />
     },
-    {
-      path: 'dashboard',
-      children: [
-        {
-          path: 'default',
-          element: <DashboardDefault />
-        }
-      ]
-    },
-    {
-      path: 'utils',
-      children: [
-        {
-          path: 'util-typography',
-          element: <UtilsTypography />
-        }
-      ]
-    },
-    {
-      path: 'utils',
-      children: [
-        {
-          path: 'util-color',
-          element: <UtilsColor />
-        }
-      ]
-    },
-    {
-      path: 'utils',
-      children: [
-        {
-          path: 'util-shadow',
-          element: <UtilsShadow />
-        }
-      ]
-    },
+    // {
+    //   path: 'dashboard',
+    //   children: [
+    //     {
+    //       path: 'default',
+    //       element: <DashboardDefault />
+    //     }
+    //   ]
+    // },
+    // {
+    //   path: 'utils',
+    //   children: [
+    //     {
+    //       path: 'util-typography',
+    //       element: <UtilsTypography />
+    //     }
+    //   ]
+    // },
+    // {
+    //   path: 'utils',
+    //   children: [
+    //     {
+    //       path: 'util-color',
+    //       element: <UtilsColor />
+    //     }
+    //   ]
+    // },
+    // {
+    //   path: 'utils',
+    //   children: [
+    //     {
+    //       path: 'util-shadow',
+    //       element: <UtilsShadow />
+    //     }
+    //   ]
+    // },
     // {
     //   path: 'icons',
     //   children: [

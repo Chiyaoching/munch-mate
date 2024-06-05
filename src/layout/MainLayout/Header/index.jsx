@@ -8,8 +8,6 @@ import ButtonBase from '@mui/material/ButtonBase';
 
 // project imports
 import LogoSection from '../LogoSection';
-import SearchSection from './SearchSection';
-import NotificationSection from './NotificationSection';
 import ProfileSection from './ProfileSection';
 
 // assets
@@ -33,8 +31,7 @@ const Header = ({ handleLeftDrawerToggle }) => {
         }}
       >
         <Box component="span" sx={{ display: { xs: 'none', md: 'block' }, flexGrow: 1 }}>
-          {/* <LogoSection /> */}
-          Mumch-mate
+          <LogoSection/>
         </Box>
         <ButtonBase sx={{ borderRadius: '8px', overflow: 'hidden' }}>
           <Avatar

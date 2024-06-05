@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -33,10 +33,12 @@ import { strengthColor, strengthIndicator } from 'utils/password-strength';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
+import { register_user } from 'store/user/actions';
 // ===========================|| FIREBASE - REGISTER ||=========================== //
 
 const AuthRegister = ({ ...others }) => {
   const theme = useTheme();
+  const dispatch = useDispatch();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
   const customization = useSelector((state) => state.customization);
   const [showPassword, setShowPassword] = useState(false);
@@ -45,9 +47,9 @@ const AuthRegister = ({ ...others }) => {
   const [strength, setStrength] = useState(0);
   const [level, setLevel] = useState();
 
-  const googleHandler = async () => {
-    console.error('Register');
-  };
+  // const googleHandler = async () => {
+  //   console.error('Register');
+  // };
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -64,13 +66,23 @@ const AuthRegister = ({ ...others }) => {
   };
 
   useEffect(() => {
-    changePassword('123456');
+    // changePassword('123456');
   }, []);
+
+  const handleSubmit = (values, { setSubmitting }) => {
+    setTimeout(() => {
+      // alert(JSON.stringify(values, null, 2));
+      const {fname, lname, ...rest} = values
+      console.log({values})
+      dispatch(register_user({username: fname + ' ' + lname, ...rest}))
+      setSubmitting(false);
+    }, 400);
+  }
 
   return (
     <>
       <Grid container direction="column" justifyContent="center" spacing={2}>
-        <Grid item xs={12}>
+        {/* <Grid item xs={12}>
           <AnimateButton>
             <Button
               variant="outlined"
@@ -112,7 +124,7 @@ const AuthRegister = ({ ...others }) => {
             </Button>
             <Divider sx={{ flexGrow: 1 }} orientation="horizontal" />
           </Box>
-        </Grid>
+        </Grid> */}
         <Grid item xs={12} container alignItems="center" justifyContent="center">
           <Box sx={{ mb: 2 }}>
             <Typography variant="subtitle1">Sign up with Email address</Typography>
@@ -122,6 +134,8 @@ const AuthRegister = ({ ...others }) => {
 
       <Formik
         initialValues={{
+          fname: '',
+          lname: '',
           email: '',
           password: '',
           submit: null
@@ -130,35 +144,42 @@ const AuthRegister = ({ ...others }) => {
           email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
           password: Yup.string().max(255).required('Password is required')
         })}
+        onSubmit={handleSubmit}
       >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
           <form noValidate onSubmit={handleSubmit} {...others}>
             <Grid container spacing={matchDownSM ? 0 : 2}>
               <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="First Name"
-                  margin="normal"
-                  name="fname"
-                  type="text"
-                  defaultValue=""
-                  sx={{ ...theme.typography.customInput }}
-                />
+                <FormControl fullWidth sx={{ ...theme.typography.customInput }}>
+                  <InputLabel htmlFor="fname-register">First Name</InputLabel>
+                  <OutlinedInput
+                    id="fname-register"
+                    type="text"
+                    value={values.fname}
+                    name="fname"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    inputProps={{}}
+                  />
+                </FormControl>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Last Name"
-                  margin="normal"
-                  name="lname"
-                  type="text"
-                  defaultValue=""
-                  sx={{ ...theme.typography.customInput }}
-                />
+                <FormControl fullWidth sx={{ ...theme.typography.customInput }}>
+                  <InputLabel htmlFor="lname-register">Last Name</InputLabel>
+                  <OutlinedInput
+                    id="lname-register"
+                    type="text"
+                    value={values.lname}
+                    name="lname"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    inputProps={{}}
+                  />
+                </FormControl>
               </Grid>
             </Grid>
             <FormControl fullWidth error={Boolean(touched.email && errors.email)} sx={{ ...theme.typography.customInput }}>
-              <InputLabel htmlFor="outlined-adornment-email-register">Email Address / Username</InputLabel>
+              <InputLabel htmlFor="outlined-adornment-email-register">Email Address</InputLabel>
               <OutlinedInput
                 id="outlined-adornment-email-register"
                 type="email"
@@ -227,7 +248,7 @@ const AuthRegister = ({ ...others }) => {
               </FormControl>
             )}
 
-            <Grid container alignItems="center" justifyContent="space-between">
+            {/* <Grid container alignItems="center" justifyContent="space-between">
               <Grid item>
                 <FormControlLabel
                   control={
@@ -243,7 +264,7 @@ const AuthRegister = ({ ...others }) => {
                   }
                 />
               </Grid>
-            </Grid>
+            </Grid> */}
             {errors.submit && (
               <Box sx={{ mt: 3 }}>
                 <FormHelperText error>{errors.submit}</FormHelperText>
