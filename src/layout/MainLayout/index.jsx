@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 // material-ui
@@ -20,6 +20,8 @@ import { drawerWidth } from 'store/constant';
 import { IconChevronRight } from '@tabler/icons-react';
 
 import { isAuthenticated } from 'utils/auth';
+import { useEffect } from 'react';
+import { SET_USER_INFO, get_user_conversations } from 'store/user/actions';
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' && prop !== 'theme' })(({ theme, open }) => ({
   ...theme.typography.mainContent,
@@ -58,6 +60,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' && pr
 
 const MainLayout = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const matchDownMd = useMediaQuery(theme.breakpoints.down('md'));
   // Handle left drawer
   const leftDrawerOpened = useSelector((state) => state.customization.opened);
@@ -65,6 +68,15 @@ const MainLayout = () => {
   const handleLeftDrawerToggle = () => {
     dispatch({ type: SET_MENU, opened: !leftDrawerOpened });
   };
+
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      navigate('/login')
+    } else {
+      dispatch({ type: SET_USER_INFO })
+      dispatch(get_user_conversations())
+    }
+  }, [])
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -92,7 +104,7 @@ const MainLayout = () => {
       <Main theme={theme} open={leftDrawerOpened}>
         {/* breadcrumb */}
         {/* <Breadcrumbs separator={IconChevronRight} navigation={navigation} icon title rightAlign /> */}
-        {isAuthenticated() ? <Outlet /> : <Navigate to="/login" />}
+        <Outlet />
       </Main>
       {/* <Customization /> */}
     </Box>

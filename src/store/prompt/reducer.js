@@ -1,33 +1,32 @@
-import { SET_PROMPT } from "./actions";
+import { 
+  SET_USER_MESSAGES, 
+  INIT_CONVERSATION,
+  ADD_USER_MESSAGE 
+} from "./actions";
 
 export const initialState = {
-  messages: [
-    {message: { index: 0, role: 'assistant', content: 'How can I assist you today?' }},
-    {message: { index: 0, role: 'user', content: 'who are you?' }},
-    {
-      message: {
-        index: 0,
-        role: 'assistant',
-        content: 'I am a virtual assistant here to assist and provide information to you. How can I help you today?'
-      }
-    },
-    { message: {index: 0, role: 'user', content: 'when is your last update for your model?' }},
-    {
-      message: {
-        index: 0,
-        role: 'assistant',
-        content: "I am powered by OpenAI's GPT-3 language model, which was released in June 2020. As an AI assistant, I do not have information on when specific updates to the model were made unless otherwise specified by OpenAI."
-      }
-    }
-  ]
+  messages: [],
+  currConversationId: null
 };
 
 const promptReducer = (state = initialState, action) => {
   switch (action.type) {
-    case SET_PROMPT:
+    case ADD_USER_MESSAGE:
       return {
         ...state,
         messages: [...state.messages, action.message]
+      }
+    case INIT_CONVERSATION:
+      return {
+        ...state,
+        currConversationId: action.conversation.conversationId,
+        messages: action.conversation.messages
+      }
+    case SET_USER_MESSAGES:
+      return {
+        ...state,
+        currConversationId: action.conversation.conversationId,
+        messages: action.conversation.messages
       }
     default:
       return state

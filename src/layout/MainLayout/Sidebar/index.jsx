@@ -19,55 +19,51 @@ import Chip from 'ui-component/extended/Chip';
 
 import { drawerWidth } from 'store/constant';
 import { RiStickyNoteAddLine } from "react-icons/ri";
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, useParams } from 'react-router-dom'
+import { init_prompt } from 'store/prompt/actions';
+import { get_user_conversations } from 'store/user/actions';
+import { useEffect, useRef, useState } from 'react';
 
 // ==============================|| SIDEBAR DRAWER ||============================== //
-const menuItems = [
-  {id: '123', title: 'test'},
-  {id: '234', title: 'test2'},
-  {id: '345', title: 'test3'},
-  {id: '456', title: 'test4'}
-]
+
 const MenuList = () => {
-  return menuItems.map(item => {
+  const navigate = useNavigate()
+  const {conversationId} = useParams()
+  const conversations = useSelector(state => state.user.conversations)
+
+  return conversations.map((c, index) => {
     return (
       <ListItemButton
-        key={item.id}
-        // selected={customization.isOpen.findIndex((id) => id === item.id) > -1}
-        // onClick={() => itemHandler(item.id)}
+        sx={{py: 0.5, my: 0.5, borderRadius: '12px'}}
+        key={c._id}
+        selected={conversationId === c._id}
+        onClick={() => navigate(`/conversation/${c._id}`)}
       >
-        {/* <ListItemIcon sx={{ my: 'auto', minWidth: !item?.icon ? 18 : 36 }}>{itemIcon}</ListItemIcon> */}
         <ListItemText
+          sx={{my: 0}}
           primary={
             <Typography color="inherit">
-              {item.title}
+              {`Conversation-${conversations.length - index}`}
             </Typography>
           }
           secondary={
-            item.caption && (
-              <Typography variant="caption" display="block" gutterBottom>
-                {item.caption}
+            c.createAt && (
+              <Typography variant="caption" display="block" gutterBottom sx={{fontSize: 10}}>
+                {new Date(c.createAt).toLocaleString()}
               </Typography>
             )
           }
         />
-        {/* {item.chip && (
-          <Chip
-            color={item.chip.color}
-            variant={item.chip.variant}
-            size={item.chip.size}
-            label={item.chip.label}
-            avatar={item.chip.avatar && <Avatar>{item.chip.avatar}</Avatar>}
-          />
-        )} */}
       </ListItemButton>
     )
   })
 }
 
-const AddButton = () => {
+const AddButton = ({handleClick}) => {
   return (
     <Box sx={{display: 'flex', justifyContent: 'end'}}>
-      <IconButton variant='outlined'>
+      <IconButton variant='outlined' onClick={handleClick}>
         <RiStickyNoteAddLine/>
       </IconButton>
     </Box>
@@ -75,8 +71,16 @@ const AddButton = () => {
 }
 
 const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
   const theme = useTheme();
   const matchUpMd = useMediaQuery(theme.breakpoints.up('md'));
+
+  const handleAddConversation = async () => {
+    const c = await dispatch(init_prompt('You are a helpful assistant.'))
+    await dispatch(get_user_conversations())
+    navigate(`/conversation/${c.conversationId}`)
+  }
 
   const drawer = (
     <>
@@ -94,7 +98,7 @@ const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
             paddingRight: '16px'
           }}
         >
-          <AddButton/>
+          <AddButton handleClick={handleAddConversation}/>
           <MenuList />
           {/* <MenuCard /> */}
           {/* <Stack direction="row" justifyContent="center" sx={{ mb: 2 }}>
