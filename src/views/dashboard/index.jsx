@@ -1,44 +1,16 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import './chatbot.scss'
 // material-ui
-import { Avatar, Box, Grid, InputAdornment, OutlinedInput, styled, useTheme } from '@mui/material';
+import { Avatar, Box, CircularProgress, Grid, InputAdornment, LinearProgress, OutlinedInput, styled, useTheme } from '@mui/material';
 // assets
 import { BsFillSendFill } from "react-icons/bs";
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import { useDispatch, useSelector } from 'react-redux';
-import Logo from '../../assets/images/logo.png'
 import { useParams } from 'react-router-dom';
 import {init_prompt, send_prompt, get_user_conversation} from 'store/prompt/actions';
 
-import Markdown from 'react-markdown';
+import {AssistantBox, AssistantLoadingBox} from './chatbot/AssistantBox';
+import UserBox from './chatbot/UserBox';
 // ==============================|| DEFAULT DASHBOARD ||============================== //
-
-
-const commonStyles = {
-  display: 'flex',
-  flexGrow: 1,
-  marginTop: 20,
-  marginBottom: 20,
-}
-
-const AssistantBox = styled(Grid, { shouldForwardProp: (prop) => prop !== 'theme' })(({ theme }) => ({
-  ...commonStyles,
-}));
-
-const UserBox = styled(Grid, { shouldForwardProp: (prop) => prop !== 'theme' })(({ theme }) => ({
-  ...commonStyles,
-  justifyContent: 'end',
-  marginRight: 6
-}));
-
-const MessageBox = styled(Grid, { shouldForwardProp: (prop) => prop !== 'theme' && prop !== 'isRight'})(({ theme, isRight }) => ({
-  border: `1px solid ${theme.palette.primary.main}`,
-  boxShadow: `2px 2px 3px 1px ${theme.palette.primary.main}`,
-  borderRadius: '5px',
-  padding: '10px',
-  display: 'flex',
-  justifyContent: isRight ? 'end': 'start'
-}));
 
 const Dashboard = () => {
   const {conversationId} = useParams()
@@ -74,9 +46,12 @@ const Dashboard = () => {
 
   useEffect(() => {
     scrollToBottom()
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setAssistantLoading(false)
-    }, 500)
+    }, 1000)
+    return () => {
+      clearTimeout(timer)
+    }
   }, [messages, isAssistantLoading])
 
   const scrollToBottom = () => {
@@ -93,6 +68,15 @@ const Dashboard = () => {
     }
   }
 
+  const renderMessage = (messages) => {
+    return messages.filter(item => item.role !== 'system').map((item, index) => {
+      return (
+        item.role === 'assistant' 
+        ? <AssistantBox key={`assistant${index}`} content={item.content}/>
+        : <UserBox key={`user${index}`} content={item.content}/>
+      )
+    })
+  }
 
   return (
     <Grid container sx={{height: '100%', flexDirection: 'column', flexWrap: 'nowrap'}}>
@@ -102,31 +86,8 @@ const Dashboard = () => {
           container
           sx={{display: 'flex', flexWrap: 'wrap', height: chatboxHeight - 10 + 'px', alignContent: 'flex-start'}}
         >
-            {messages.filter(item => item.role !== 'system').map((item, index) => {
-              return (
-                item.role === 'assistant' 
-                ? <AssistantBox theme={theme} item xs={12} key={`assistant${index}`}>
-                    <Avatar sx={{width: 30, height: 30}} src={Logo}/>
-                    <Box sx={{ml: 2, mt: 0.5, width: '70%', lineHeight: '20px'}}>
-                      <Markdown className='markdown-container'>
-                        {item.content}
-                      </Markdown>
-                    </Box>
-                  </AssistantBox>
-                : <UserBox theme={theme} item xs={12} key={`user${index}`}>
-                    <MessageBox isRight>
-                      {item.content}
-                    </MessageBox>
-                    <Avatar sx={{width: 30, height: 30, ml: 2}}/>
-                  </UserBox>
-              )
-            })}
-            <AssistantBox theme={theme} item xs={12} sx={{opacity: isAssistantLoading ? '1' : '0'}}>
-              <Avatar sx={{width: 30, height: 30}} src={Logo}/>
-              <Box sx={{ml: 2, mt: 0.5, width: '70%', lineHeight: '20px'}}>
-                Loading...
-              </Box>
-            </AssistantBox>
+            {renderMessage(messages)}
+            <AssistantLoadingBox isAssistantLoading={isAssistantLoading}/>
         </Grid>
       </PerfectScrollbar>
       <Grid item sx={{width: '70%', marginLeft: 'auto', marginRight: 'auto'}}>

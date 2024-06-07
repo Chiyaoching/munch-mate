@@ -2,7 +2,7 @@
  * @Author: Seven Yaoching-Chi
  * @Date: 2022-11-29 14:31:01
  * @Last Modified by: Seven Yaoching-Chi
- * @Last Modified time: 2024-06-06 15:49:09
+ * @Last Modified time: 2024-06-06 22:25:06
  */
 
 const express = require('express');
@@ -62,7 +62,7 @@ router.post('/init', authMiddleware, async (req, res) => {
       model
     });
     messages.push(completion.choices[0].message)
-    const newConversation = new Conversation({ userId: id, messages: JSON.stringify(messages) });
+    const newConversation = new Conversation({ userId: id, messages: JSON.stringify(messages), createAt: new Date().getTime() });
     await newConversation.save()
     res.status(200).json({conversationId: newConversation._id, messages});
   } else {

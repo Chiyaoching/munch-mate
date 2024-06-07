@@ -1,7 +1,8 @@
+import React from 'react'
 import PropTypes from 'prop-types';
 
 // material-ui
-import { Button, IconButton, ListItemButton, ListItemIcon, ListItemText, Typography, useTheme } from '@mui/material';
+import { Button, Grid, IconButton, ListItemButton, ListItemIcon, ListItemText, Typography, styled, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import Stack from '@mui/material/Stack';
@@ -24,7 +25,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { init_prompt } from 'store/prompt/actions';
 import { get_user_conversations } from 'store/user/actions';
 import { useEffect, useRef, useState } from 'react';
-
+import AlertDialog from 'ui-component/Dialog';
+import MainCard from 'ui-component/cards/MainCard';
+import {PERSONAS} from 'store/constant'
 // ==============================|| SIDEBAR DRAWER ||============================== //
 
 const MenuList = () => {
@@ -70,16 +73,52 @@ const AddButton = ({handleClick}) => {
   )
 }
 
+const PersonaCard = styled(MainCard)(() => ({
+  width: '150px',
+  height: '150px',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  cursor: 'pointer',
+}))
+
+const PersonaBox = React.memo(({isOpenAddDialog, handleClose, handlePersonaClick}) => {
+  return (
+    <AlertDialog isOpenAddDialog={isOpenAddDialog} handleClose={handleClose}>
+      <Grid container spacing={2}>
+        <Grid item xs={4}>
+          <PersonaCard border onClick={() => handlePersonaClick(0)}>
+            <Box>Type 1</Box>
+          </PersonaCard>
+        </Grid>
+        <Grid item xs={4}>
+          <PersonaCard border onClick={() => handlePersonaClick(1)}>
+            <Box>Type 2</Box>
+          </PersonaCard>
+        </Grid>
+        <Grid item xs={4}>
+          <PersonaCard border onClick={() => handlePersonaClick(2)}>
+            <Box>Type 3</Box>
+          </PersonaCard>
+        </Grid>
+      </Grid>
+    </AlertDialog>
+  )
+})
+
 const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const theme = useTheme();
   const matchUpMd = useMediaQuery(theme.breakpoints.up('md'));
-
-  const handleAddConversation = async () => {
-    const c = await dispatch(init_prompt('You are a helpful assistant.'))
-    await dispatch(get_user_conversations())
-    navigate(`/conversation/${c.conversationId}`)
+  const [isOpenAddDialog, setOpenAddDialog] = useState(false)
+  const handleAddConversation = async (type) => {
+    console.log(type, PERSONAS[type])
+    if (PERSONAS[type]) {
+      const c = await dispatch(init_prompt(PERSONAS[type]))
+      await dispatch(get_user_conversations())
+      navigate(`/conversation/${c.conversationId}`)
+    }
   }
 
   const drawer = (
@@ -90,6 +129,14 @@ const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
         </Box>
       </Box>
       <BrowserView>
+        <PersonaBox 
+          isOpenAddDialog={isOpenAddDialog} 
+          handleClose={() => setOpenAddDialog(false)}
+          handlePersonaClick={(type) => {
+            handleAddConversation(type);
+            setOpenAddDialog(false)
+          }}
+        />
         <PerfectScrollbar
           component="div"
           style={{
@@ -98,7 +145,7 @@ const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
             paddingRight: '16px'
           }}
         >
-          <AddButton handleClick={handleAddConversation}/>
+          <AddButton handleClick={() => setOpenAddDialog(true)}/>
           <MenuList />
           {/* <MenuCard /> */}
           {/* <Stack direction="row" justifyContent="center" sx={{ mb: 2 }}>
