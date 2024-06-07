@@ -10,14 +10,15 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 // project imports
 import AuthWrapper1 from '../AuthWrapper1';
 import AuthCardWrapper from '../AuthCardWrapper';
-import AuthLogin from '../authentication/auth-forms/AuthLogin';
-// import Logo from 'ui-component/Logo';
+import Logo from 'ui-component/Logo';
+import AuthRegister from './auth-forms/AuthRegister';
 import AuthFooter from 'ui-component/cards/AuthFooter';
-import Logo from 'ui-component/Logo'
 
-// ================================|| AUTH3 - LOGIN ||================================ //
+// assets
 
-const Login = () => {
+// ===============================|| AUTH3 - REGISTER ||=============================== //
+
+const Register = () => {
   const downMD = useMediaQuery((theme) => theme.breakpoints.down('md'));
 
   return (
@@ -29,7 +30,7 @@ const Login = () => {
               <AuthCardWrapper>
                 <Grid container spacing={2} alignItems="center" justifyContent="center">
                   <Grid item sx={{ mb: 3 }}>
-                    <Link to="#" aria-label="logo">
+                    <Link to="#" aria-label="theme logo">
                       <Logo />
                     </Link>
                   </Grid>
@@ -38,7 +39,7 @@ const Login = () => {
                       <Grid item>
                         <Stack alignItems="center" justifyContent="center" spacing={1}>
                           <Typography color="secondary.main" gutterBottom variant={downMD ? 'h3' : 'h2'}>
-                            Hi, Welcome Back
+                            Sign up
                           </Typography>
                           {/* <Typography variant="caption" fontSize="16px" textAlign={{ xs: 'center', md: 'inherit' }}>
                             Enter your credentials to continue
@@ -48,15 +49,15 @@ const Login = () => {
                     </Grid>
                   </Grid>
                   <Grid item xs={12}>
-                    <AuthLogin />
+                    <AuthRegister />
                   </Grid>
                   <Grid item xs={12}>
                     <Divider />
                   </Grid>
                   <Grid item xs={12}>
                     <Grid item container direction="column" alignItems="center" xs={12}>
-                      <Typography component={Link} to="/register" variant="subtitle1" sx={{ textDecoration: 'none' }}>
-                        Don&apos;t have an account?
+                      <Typography component={Link} to="/login" variant="subtitle1" sx={{ textDecoration: 'none' }}>
+                        Already have an account?
                       </Typography>
                     </Grid>
                   </Grid>
@@ -73,4 +74,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;

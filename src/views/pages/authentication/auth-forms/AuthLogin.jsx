@@ -33,7 +33,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 import Google from 'assets/images/icons/social-google.svg';
 
-import { login_user } from 'store/user/actions';
+import { login_user, get_user_conversations } from 'store/user/actions';
 
 // ============================|| FIREBASE - LOGIN ||============================ //
 
@@ -45,10 +45,6 @@ const AuthLogin = ({ ...others }) => {
   const customization = useSelector((state) => state.customization);
   const [checked, setChecked] = useState(true);
 
-  const googleHandler = async () => {
-    console.error('Login');
-  };
-
   const [showPassword, setShowPassword] = useState(false);
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -59,12 +55,9 @@ const AuthLogin = ({ ...others }) => {
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
-      // alert(JSON.stringify(values, null, 2));
-      console.log({values})
       await dispatch(login_user(values))
       navigate('/')
       setSubmitting(false);
-      
   }
 
   return (
