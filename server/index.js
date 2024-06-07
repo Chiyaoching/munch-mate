@@ -2,7 +2,7 @@
  * @Author: Seven Yaoching-Chi 
  * @Date: 2024-06-06 15:46:51 
  * @Last Modified by: Seven Yaoching-Chi
- * @Last Modified time: 2024-06-06 15:47:16
+ * @Last Modified time: 2024-06-06 22:24:27
  */
 
 const path = require('path');
@@ -17,8 +17,6 @@ const {
 } = require('./helper/logger');
 const {port, mongo_url} = require('./config');
 const mongoose = require('mongoose');
-
-require('./constant/global');
 
 const infoLog = (...args) => log('[SERVER]', ...args);
 const errLog = (...args) => err('[SERVER]', ...args);
