@@ -20,6 +20,18 @@ export const update_user_setting = (params) => async (dispatch) => {
   console.log(res.data)
 }
 
+export const get_user_setting = () => async (dispatch) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await api.get('/api/auth/setting');
+      dispatch({type: SET_USER_INFO, userInfo: res.data})
+      resolve(res.data)
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
+
 export const get_user_conversations = () => async (dispatch) => {
   const res = await api.get('/api/prompt/conversations');
   dispatch({type: SET_USER_CONVERSATIONS, conversations: res.data})

@@ -12,8 +12,11 @@ export const initialState = {
 const userReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_USER_INFO:
-      const token = localStorage.getItem('token')
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      let payload = action?.userInfo
+      if (!payload) {
+        const token = localStorage.getItem('token')
+        payload = JSON.parse(atob(token.split('.')[1]));
+      }
       return {
         ...state,
         userInfo: {...state.userInfo, ...payload}

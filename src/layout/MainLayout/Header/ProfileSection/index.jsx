@@ -38,7 +38,7 @@ import User1 from 'assets/images/users/user-round.svg';
 import { IconLogout, IconSearch, IconSettings, IconUser } from '@tabler/icons-react';
 
 import { isAuthenticated } from 'utils/auth';
-import {REMOVE_USER_INFO, update_user_setting} from 'store/user/actions'
+import {REMOVE_USER_INFO, get_user_setting, update_user_setting} from 'store/user/actions'
 import DialogBox from 'ui-component/Dialog';
 import { Button, FormControl, IconButton, InputLabel } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
@@ -48,13 +48,26 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 const SettingBox = React.memo(({isOpen, handleClose, handleConfirm}) => {
   const theme = useTheme();
+  const dispatch = useDispatch()
   const [apiKey, setApiKey] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const userSettings = useSelector(state => state.user.userInfo)
 
   const handleChange = (e) => setApiKey(e.target.value)
   const handleClick = () => handleConfirm({apiKey})
   const handleClickShowPassword = () => setShowPassword((show) => !show)
   const handleMouseDownPassword = (event) => event.preventDefault()
+
+  const fetchUserSettings = async () => {
+    const userInfo = await dispatch(get_user_setting())
+    setApiKey(userInfo?.apiKey)
+  }
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchUserSettings()
+    }
+  }, [isOpen])
 
   return (
     <DialogBox 
@@ -112,8 +125,8 @@ const ProfileSection = () => {
    * anchorRef is used on different componets and specifying one type leads to other components throwing an error
    * */
   const anchorRef = useRef(null);
+
   const handleLogout = () => {
-    console.log('Logout');
     dispatch({type: REMOVE_USER_INFO})
     if (!isAuthenticated()) {
       navigate('/login')
@@ -130,7 +143,6 @@ const ProfileSection = () => {
   }
 
   const handleConfirmSetting = async (values) => {
-    console.log(values)
     try {
       await dispatch(update_user_setting(values))
       setOpenSettings(false);
@@ -166,6 +178,7 @@ const ProfileSection = () => {
 
     prevOpen.current = open;
   }, [open]);
+
 
   return (
     <>

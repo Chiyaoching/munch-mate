@@ -64,4 +64,16 @@ router.put('/setting', authMiddleware, async (req, res) => {
   }
 });
 
+// Settings
+router.get('/setting', authMiddleware, async (req, res) => {
+  if (req.user.id) {
+    try {
+      const user = await User.findById(req.user.id);
+      res.status(200).json(user);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+});
+
 module.exports = router;
