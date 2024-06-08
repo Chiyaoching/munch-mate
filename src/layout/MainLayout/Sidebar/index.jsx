@@ -22,8 +22,8 @@ import { drawerWidth } from 'store/constant';
 import { RiStickyNoteAddLine } from "react-icons/ri";
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom'
-import { init_prompt } from 'store/prompt/actions';
-import { get_user_conversations } from 'store/user/actions';
+import { initPrompt } from 'store/prompt/actions';
+import { getUserConversations } from 'store/user/actions';
 import { useEffect, useRef, useState } from 'react';
 import DialogBox from 'ui-component/Dialog';
 import MainCard from 'ui-component/cards/MainCard';
@@ -118,8 +118,8 @@ const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
   const handleAddConversation = async (type) => {
     if (PERSONAS[type]) {
       try {
-        const c = await dispatch(init_prompt(PERSONAS[type]))
-        await dispatch(get_user_conversations())
+        const c = await dispatch(initPrompt(PERSONAS[type]))
+        await dispatch(getUserConversations())
         navigate(`/conversation/${c.conversationId}`)
       } catch (err) {
         dispatch({type: SET_ALERT_OPEN, alertOpen: true, alertMsg: err.response.data || err.message})

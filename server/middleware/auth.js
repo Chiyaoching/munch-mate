@@ -13,7 +13,8 @@ const authMiddleware = (req, res, next) => {
     // Verify the token
     jwt.verify(token, JWT_SECRET, (err, user) => {
       if (err) {
-        global.currentUsers[user.id] = cleanUpOpenAIInterface(user.id)
+        console.log({user})
+        // global.currentUsers[user.id] = cleanUpOpenAIInterface(user.id)
         return res.sendStatus(403); // Forbidden
       }
       req.user = user; // Attach the user object to the request

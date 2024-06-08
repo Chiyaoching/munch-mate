@@ -33,7 +33,7 @@ import { strengthColor, strengthIndicator } from 'utils/password-strength';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
-import { register_user } from 'store/user/actions';
+import { registerUser } from 'store/user/actions';
 // ===========================|| FIREBASE - REGISTER ||=========================== //
 
 const AuthRegister = ({ ...others }) => {
@@ -74,7 +74,7 @@ const AuthRegister = ({ ...others }) => {
       // alert(JSON.stringify(values, null, 2));
       const {fname, lname, ...rest} = values
       console.log({values})
-      dispatch(register_user({username: fname + ' ' + lname, ...rest}))
+      dispatch(registerUser({username: fname + ' ' + lname, ...rest}))
       setSubmitting(false);
     }, 400);
   }

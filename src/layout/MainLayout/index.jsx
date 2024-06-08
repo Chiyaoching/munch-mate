@@ -21,7 +21,7 @@ import { IconChevronRight } from '@tabler/icons-react';
 
 import { isAuthenticated } from 'utils/auth';
 import { useEffect } from 'react';
-import { SET_USER_INFO, get_user_conversations } from 'store/user/actions';
+import { SET_USER_INFO, getUserConversations } from 'store/user/actions';
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' && prop !== 'theme' })(({ theme, open }) => ({
   ...theme.typography.mainContent,
@@ -74,7 +74,7 @@ const MainLayout = () => {
       navigate('/login')
     } else {
       dispatch({ type: SET_USER_INFO })
-      dispatch(get_user_conversations())
+      dispatch(getUserConversations())
     }
   }, [])
 

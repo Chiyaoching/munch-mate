@@ -6,7 +6,7 @@ import { BsFillSendFill } from "react-icons/bs";
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import {init_prompt, send_prompt, get_user_conversation} from 'store/prompt/actions';
+import {initPrompt, sendPrompt, getUserConversation} from 'store/prompt/actions';
 
 import {AssistantBox, AssistantLoadingBox} from './chatbot/AssistantBox';
 import UserBox from './chatbot/UserBox';
@@ -28,7 +28,7 @@ const Dashboard = () => {
   }, [])
 
   const fetchMessages = async (conversationId) => {
-    await dispatch(get_user_conversation(conversationId))
+    await dispatch(getUserConversation(conversationId))
   }
 
   useEffect(() => {
@@ -63,7 +63,7 @@ const Dashboard = () => {
   const handleSubmitPrompt = useCallback(() => {
     if (prompt) {
       setAssistantLoading(true)
-      dispatch(send_prompt(prompt, conversationId))
+      dispatch(sendPrompt(prompt, conversationId))
       setPrompt('')
     }
   }, [prompt, conversationId])
@@ -75,12 +75,16 @@ const Dashboard = () => {
   }
 
   const renderMessage = (messages) => {
-    return messages.filter(item => item.role !== 'system').map((item, index) => {
-      return (
-        item.role === 'assistant' 
-        ? <AssistantBox key={`assistant${index}`} content={item.content}/>
-        : <UserBox key={`user${index}`} content={item.content}/>
-      )
+    const filteredMesssages = messages.filter(item => item.role !== 'system')
+    return filteredMesssages.map((item, index) => {
+      switch (item.role) {
+        case 'assistant':
+          return <AssistantBox key={`assistant${index}`} content={item.content} isFunctionCall={item.isFunctionCall}/>
+        case 'user':
+          return <UserBox key={`user${index}`} content={item.content}/>
+        default:
+          return null
+      }
     })
   }
 

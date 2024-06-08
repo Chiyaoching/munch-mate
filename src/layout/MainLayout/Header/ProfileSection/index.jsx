@@ -38,7 +38,7 @@ import User1 from 'assets/images/users/user-round.svg';
 import { IconLogout, IconSearch, IconSettings, IconUser } from '@tabler/icons-react';
 
 import { isAuthenticated } from 'utils/auth';
-import {REMOVE_USER_INFO, get_user_setting, update_user_setting} from 'store/user/actions'
+import {REMOVE_USER_INFO, getUserSetting, updateUserSetting} from 'store/user/actions'
 import DialogBox from 'ui-component/Dialog';
 import { Button, FormControl, IconButton, InputLabel } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
@@ -59,7 +59,7 @@ const SettingBox = React.memo(({isOpen, handleClose, handleConfirm}) => {
   const handleMouseDownPassword = (event) => event.preventDefault()
 
   const fetchUserSettings = async () => {
-    const userInfo = await dispatch(get_user_setting())
+    const userInfo = await dispatch(getUserSetting())
     setApiKey(userInfo?.apiKey)
   }
 
@@ -144,7 +144,7 @@ const ProfileSection = () => {
 
   const handleConfirmSetting = async (values) => {
     try {
-      await dispatch(update_user_setting(values))
+      await dispatch(updateUserSetting(values))
       setOpenSettings(false);
     } catch (err) {
       console.error(err)
