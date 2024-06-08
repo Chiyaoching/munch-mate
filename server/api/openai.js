@@ -2,21 +2,17 @@
  * @Author: Seven Yaoching-Chi
  * @Date: 2022-11-29 14:31:01
  * @Last Modified by: Seven Yaoching-Chi
- * @Last Modified time: 2024-06-06 22:25:06
+ * @Last Modified time: 2024-06-07 17:37:12
  */
 
 const express = require('express');
 const router = express.Router();
 const path = require('path');
-const config = require('../config');
-const OpenAI = require('openai');
 const authMiddleware = require('../middleware/auth');
+const openaiMiddleware = require('../middleware/openai');
 const { handleAPIError: errorHandler } = require('../helper/errorHandler');
 const Conversation = require('../models/conversation')
 
-const openai = new OpenAI({
-  apiKey: config.openai_key
-})
 
 function resolve(dir) {
   return path.join(__dirname, '..', dir);
@@ -51,20 +47,21 @@ router.get('/conversation/:id', authMiddleware, async (req, res) => {
   }
 })
 
-router.post('/init', authMiddleware, async (req, res) => {
+router.post('/init', authMiddleware, openaiMiddleware, async (req, res) => {
   const params = req.body;
   if (params?.message && req.user) {
     const {id} = req.user
     const messages = [gen_sys_msg(params.message)]
-
-    const completion = await openai.chat.completions.create({
-      messages,
-      model
-    });
-    messages.push(completion.choices[0].message)
-    const newConversation = new Conversation({ userId: id, messages: JSON.stringify(messages), createAt: new Date().getTime() });
-    await newConversation.save()
-    res.status(200).json({conversationId: newConversation._id, messages});
+    const openai = global.currentUsers[id].openAIInfo.openai
+    try {
+      const completion = await openai.createConversation(messages)
+      messages.push(completion.choices[0].message)
+      const newConversation = new Conversation({ userId: id, messages: JSON.stringify(messages), createAt: new Date().getTime() });
+      await newConversation.save()
+      res.status(200).json({conversationId: newConversation._id, messages});
+    } catch (err) {
+      res.status(400).json('openAI API failed.');
+    }
   } else {
     res.status(400).json('failed');
   }
@@ -77,17 +74,14 @@ router.post('/msg', authMiddleware, async (req, res) => {
       const conversation = await Conversation.findById(params.conversationId);
       const messages = JSON.parse(conversation.messages)
       messages.push(gen_user_msg(params.prompt))
-      const completion = await openai.chat.completions.create({
-        messages,
-        model
-      });
+      const openai = global.currentUsers[req.user.id].openAIInfo.openai
+      const completion = await openai.createConversation(messages)
       messages.push(completion.choices[0].message)
       conversation.messages = JSON.stringify(messages)
       await conversation.save()
-      // console.log(messages)
       res.status(200).json(completion.choices[0]);
     } catch (err) {
-      res.status(400).json('failed');
+      res.status(400).json('openAI API failed');
     }
   } else {
     res.status(400).json('failed');

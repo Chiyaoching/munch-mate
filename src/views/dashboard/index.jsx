@@ -60,11 +60,17 @@ const Dashboard = () => {
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
+  const handleSubmitPrompt = useCallback(() => {
+    if (prompt) {
       setAssistantLoading(true)
       dispatch(send_prompt(prompt, conversationId))
       setPrompt('')
+    }
+  }, [prompt, conversationId])
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSubmitPrompt()
     }
   }
 
@@ -100,7 +106,7 @@ const Dashboard = () => {
           onKeyDown={handleKeyDown}
           endAdornment={
             <InputAdornment position="end" sx={{cursor: 'pointer'}}>
-              <BsFillSendFill onClick={() => console.log('123')}/>
+              <BsFillSendFill onClick={handleSubmitPrompt}/>
             </InputAdornment>
           }
           aria-describedby="prompt-input-text"

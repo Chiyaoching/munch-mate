@@ -6,7 +6,9 @@ export const initialState = {
   defaultId: 'default',
   fontFamily: `'Roboto', sans-serif`,
   borderRadius: 12,
-  opened: true
+  opened: true,
+  alertOpen: false,
+  alertMsg: ''
 };
 
 // ==============================|| CUSTOMIZATION REDUCER ||============================== //
@@ -35,6 +37,12 @@ const customizationReducer = (state = initialState, action) => {
         ...state,
         borderRadius: action.borderRadius
       };
+    case actionTypes.SET_ALERT_OPEN:
+      return {
+        ...state,
+        alertOpen: action.alertOpen,
+        alertMsg: action.alertMsg || state.alertMsg
+      }
     default:
       return state;
   }

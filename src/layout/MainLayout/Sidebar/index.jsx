@@ -25,9 +25,11 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { init_prompt } from 'store/prompt/actions';
 import { get_user_conversations } from 'store/user/actions';
 import { useEffect, useRef, useState } from 'react';
-import AlertDialog from 'ui-component/Dialog';
+import DialogBox from 'ui-component/Dialog';
 import MainCard from 'ui-component/cards/MainCard';
 import {PERSONAS} from 'store/constant'
+import AlertDialog from 'ui-component/AlertDialog';
+import { SET_ALERT_OPEN } from 'store/actions';
 // ==============================|| SIDEBAR DRAWER ||============================== //
 
 const MenuList = () => {
@@ -84,7 +86,7 @@ const PersonaCard = styled(MainCard)(() => ({
 
 const PersonaBox = React.memo(({isOpenAddDialog, handleClose, handlePersonaClick}) => {
   return (
-    <AlertDialog isOpenAddDialog={isOpenAddDialog} handleClose={handleClose}>
+    <DialogBox isOpen={isOpenAddDialog} title="What's the style you're looking for?" handleClose={handleClose}>
       <Grid container spacing={2}>
         <Grid item xs={4}>
           <PersonaCard border onClick={() => handlePersonaClick(0)}>
@@ -102,7 +104,7 @@ const PersonaBox = React.memo(({isOpenAddDialog, handleClose, handlePersonaClick
           </PersonaCard>
         </Grid>
       </Grid>
-    </AlertDialog>
+    </DialogBox>
   )
 })
 
@@ -112,12 +114,16 @@ const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
   const theme = useTheme();
   const matchUpMd = useMediaQuery(theme.breakpoints.up('md'));
   const [isOpenAddDialog, setOpenAddDialog] = useState(false)
+
   const handleAddConversation = async (type) => {
-    console.log(type, PERSONAS[type])
     if (PERSONAS[type]) {
-      const c = await dispatch(init_prompt(PERSONAS[type]))
-      await dispatch(get_user_conversations())
-      navigate(`/conversation/${c.conversationId}`)
+      try {
+        const c = await dispatch(init_prompt(PERSONAS[type]))
+        await dispatch(get_user_conversations())
+        navigate(`/conversation/${c.conversationId}`)
+      } catch (err) {
+        dispatch({type: SET_ALERT_OPEN, alertOpen: true, alertMsg: err.response.data || err.message})
+      }
     }
   }
 
@@ -129,6 +135,7 @@ const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
         </Box>
       </Box>
       <BrowserView>
+        <AlertDialog/>
         <PersonaBox 
           isOpenAddDialog={isOpenAddDialog} 
           handleClose={() => setOpenAddDialog(false)}

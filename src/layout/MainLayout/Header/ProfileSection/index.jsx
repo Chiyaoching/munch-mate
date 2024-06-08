@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -38,8 +38,62 @@ import User1 from 'assets/images/users/user-round.svg';
 import { IconLogout, IconSearch, IconSettings, IconUser } from '@tabler/icons-react';
 
 import { isAuthenticated } from 'utils/auth';
-import {REMOVE_USER_INFO} from 'store/user/actions'
+import {REMOVE_USER_INFO, update_user_setting} from 'store/user/actions'
+import DialogBox from 'ui-component/Dialog';
+import { Button, FormControl, IconButton, InputLabel } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 // ==============================|| PROFILE MENU ||============================== //
+
+
+
+const SettingBox = React.memo(({isOpen, handleClose, handleConfirm}) => {
+  const theme = useTheme();
+  const [apiKey, setApiKey] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleChange = (e) => setApiKey(e.target.value)
+  const handleClick = () => handleConfirm({apiKey})
+  const handleClickShowPassword = () => setShowPassword((show) => !show)
+  const handleMouseDownPassword = (event) => event.preventDefault()
+
+  return (
+    <DialogBox 
+      isOpen={isOpen} 
+      title="Setting" 
+      handleClose={handleClose} 
+      buttons={<Button variant="outlined" onClick={handleClick}>Confirm</Button>}
+    >
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+        <FormControl fullWidth sx={{ ...theme.typography.customInput }}>
+          <InputLabel htmlFor="outlined-adornment-apikey">API key</InputLabel>
+          <OutlinedInput
+            id="outlined-adornment-apikey"
+            type={showPassword ? 'text' : 'password'}
+            value={apiKey}
+            name="apiKey"
+            onChange={handleChange}
+            label="API key"
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={handleClickShowPassword}
+                  onMouseDown={handleMouseDownPassword}
+                  edge="end"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            }
+            inputProps={{}}
+          />
+        </FormControl>
+        </Grid>
+      </Grid>
+    </DialogBox>
+  )
+})
 
 const ProfileSection = () => {
   const theme = useTheme();
@@ -53,17 +107,37 @@ const ProfileSection = () => {
   const [notification, setNotification] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [open, setOpen] = useState(false);
+  const [openSetting, setOpenSettings] = useState(false);
   /**
    * anchorRef is used on different componets and specifying one type leads to other components throwing an error
    * */
   const anchorRef = useRef(null);
-  const handleLogout = async () => {
+  const handleLogout = () => {
     console.log('Logout');
     dispatch({type: REMOVE_USER_INFO})
     if (!isAuthenticated()) {
       navigate('/login')
     }
   };
+
+  const handleSettings = () => {
+    setOpenSettings(true);
+    setOpen(false)
+  }
+
+  const handleCloseSetting = () => {
+    setOpenSettings(false);
+  }
+
+  const handleConfirmSetting = async (values) => {
+    console.log(values)
+    try {
+      await dispatch(update_user_setting(values))
+      setOpenSettings(false);
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
   const handleClose = (event) => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
@@ -108,48 +182,11 @@ const ProfileSection = () => {
         onClick={handleToggle}
         color="inherit"
       />
-      {/* <Chip
-        sx={{
-          height: '48px',
-          alignItems: 'center',
-          borderRadius: '27px',
-          transition: 'all .2s ease-in-out',
-          borderColor: theme.palette.primary.light,
-          backgroundColor: theme.palette.primary.light,
-          '&[aria-controls="menu-list-grow"], &:hover': {
-            borderColor: theme.palette.primary.main,
-            background: `${theme.palette.primary.main}!important`,
-            color: theme.palette.primary.light,
-            '& svg': {
-              stroke: theme.palette.primary.light
-            }
-          },
-          '& .MuiChip-label': {
-            lineHeight: 0
-          }
-        }}
-        icon={
-          <Avatar
-            // src={User1}
-            sx={{
-              ...theme.typography.mediumAvatar,
-              // margin: '8px 0 8px 8px !important',
-              cursor: 'pointer'
-            }}
-            ref={anchorRef}
-            aria-controls={open ? 'menu-list-grow' : undefined}
-            aria-haspopup="true"
-            color="inherit"
-          />
-        }
-        label={<IconSettings stroke={1.5} size="1.5rem" color={theme.palette.primary.main} />}
-        variant="outlined"
-        ref={anchorRef}
-        aria-controls={open ? 'menu-list-grow' : undefined}
-        aria-haspopup="true"
-        onClick={handleToggle}
-        color="primary"
-      /> */}
+      <SettingBox 
+        isOpen={openSetting} 
+        handleClose={handleCloseSetting}
+        handleConfirm={handleConfirmSetting}
+      />
       <Popper
         placement="bottom-end"
         open={open}
@@ -183,23 +220,6 @@ const ProfileSection = () => {
                       </Stack>
                       <Typography variant="subtitle2">{userInfo?.email}</Typography>
                     </Stack>
-                    {/* <OutlinedInput
-                      sx={{ width: '100%', pr: 1, pl: 2, my: 2 }}
-                      id="input-search-profile"
-                      value={value}
-                      onChange={(e) => setValue(e.target.value)}
-                      placeholder="Search profile options"
-                      startAdornment={
-                        <InputAdornment position="start">
-                          <IconSearch stroke={1.5} size="1rem" color={theme.palette.grey[500]} />
-                        </InputAdornment>
-                      }
-                      aria-describedby="search-helper-text"
-                      inputProps={{
-                        'aria-label': 'weight'
-                      }}
-                    /> */}
-                    {/* <Divider /> */}
                   </Box>
                   <Box sx={{p:2}}>
                     <Divider />
@@ -219,6 +239,17 @@ const ProfileSection = () => {
                         }
                       }}
                     >
+                      <ListItemButton
+                        sx={{ borderRadius: `${customization.borderRadius}px` }}
+                        selected={selectedIndex === 4}
+                        onClick={handleSettings}
+                      >
+                        <ListItemIcon>
+                          <IconSettings stroke={1.5} size="1.3rem" />
+                        </ListItemIcon>
+                        <ListItemText primary={<Typography variant="body2">Settings</Typography>} />
+                      </ListItemButton>
+
                       <ListItemButton
                         sx={{ borderRadius: `${customization.borderRadius}px` }}
                         selected={selectedIndex === 4}

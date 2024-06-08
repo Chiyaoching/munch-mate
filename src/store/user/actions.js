@@ -15,6 +15,10 @@ export const register_user = (params) => async (dispatch) => {
   console.log(res.data)
 }
 
+export const update_user_setting = (params) => async (dispatch) => {
+  const res = await api.put('/api/auth/setting', {...params});
+  console.log(res.data)
+}
 
 export const get_user_conversations = () => async (dispatch) => {
   const res = await api.get('/api/prompt/conversations');
