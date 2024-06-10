@@ -1,45 +1,46 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
 // material-ui
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
-import Divider from '@mui/material/Divider';
-import FormControl from '@mui/material/FormControl';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormHelperText from '@mui/material/FormHelperText';
-import Grid from '@mui/material/Grid';
-import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
-import InputLabel from '@mui/material/InputLabel';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
+import Divider from "@mui/material/Divider";
+import FormControl from "@mui/material/FormControl";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormHelperText from "@mui/material/FormHelperText";
+import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import InputLabel from "@mui/material/InputLabel";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 
 // third party
-import * as Yup from 'yup';
-import { Formik } from 'formik';
+import * as Yup from "yup";
+import { Formik } from "formik";
 
 // project imports
-import Google from 'assets/images/icons/social-google.svg';
-import AnimateButton from 'ui-component/extended/AnimateButton';
-import { strengthColor, strengthIndicator } from 'utils/password-strength';
+import Google from "assets/images/icons/social-google.svg";
+import AnimateButton from "ui-component/extended/AnimateButton";
+import { strengthColor, strengthIndicator } from "utils/password-strength";
 
 // assets
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
-import { registerUser } from 'store/user/actions';
+import { registerUser } from "store/user/actions";
 // ===========================|| FIREBASE - REGISTER ||=========================== //
 
 const AuthRegister = ({ ...others }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
+  const navigate = useNavigate();
+  const matchDownSM = useMediaQuery(theme.breakpoints.down("md"));
   const customization = useSelector((state) => state.customization);
   const [showPassword, setShowPassword] = useState(false);
   const [checked, setChecked] = useState(true);
@@ -69,15 +70,18 @@ const AuthRegister = ({ ...others }) => {
     // changePassword('123456');
   }, []);
 
-  const handleSubmit = (values, { setSubmitting }) => {
-    setTimeout(() => {
-      // alert(JSON.stringify(values, null, 2));
-      const {fname, lname, ...rest} = values
-      console.log({values})
-      dispatch(registerUser({username: fname + ' ' + lname, ...rest}))
+  const handleSubmit = async (values, { setSubmitting, setFieldError }) => {
+    try {
+      const { fname, lname, ...rest } = values;
+      await dispatch(registerUser({ username: fname + " " + lname, ...rest }));
       setSubmitting(false);
-    }, 400);
-  }
+      navigate("/login");
+    } catch (err) {
+      setFieldError("submit", err.response.data.message || err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <>
@@ -125,28 +129,47 @@ const AuthRegister = ({ ...others }) => {
             <Divider sx={{ flexGrow: 1 }} orientation="horizontal" />
           </Box>
         </Grid> */}
-        <Grid item xs={12} container alignItems="center" justifyContent="center">
+        <Grid
+          item
+          xs={12}
+          container
+          alignItems="center"
+          justifyContent="center"
+        >
           <Box sx={{ mb: 2 }}>
-            <Typography variant="subtitle1">Sign up with Email address</Typography>
+            <Typography variant="subtitle1">
+              Sign up with Email address
+            </Typography>
           </Box>
         </Grid>
       </Grid>
 
       <Formik
         initialValues={{
-          fname: '',
-          lname: '',
-          email: '',
-          password: '',
-          submit: null
+          fname: "",
+          lname: "",
+          email: "",
+          password: "",
+          submit: null,
         }}
         validationSchema={Yup.object().shape({
-          email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-          password: Yup.string().max(255).required('Password is required')
+          email: Yup.string()
+            .email("Must be a valid email")
+            .max(255)
+            .required("Email is required"),
+          password: Yup.string().max(255).required("Password is required"),
         })}
         onSubmit={handleSubmit}
       >
-        {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
+        {({
+          errors,
+          handleBlur,
+          handleChange,
+          handleSubmit,
+          isSubmitting,
+          touched,
+          values,
+        }) => (
           <form noValidate onSubmit={handleSubmit} {...others}>
             <Grid container spacing={matchDownSM ? 0 : 2}>
               <Grid item xs={12} sm={6}>
@@ -178,8 +201,14 @@ const AuthRegister = ({ ...others }) => {
                 </FormControl>
               </Grid>
             </Grid>
-            <FormControl fullWidth error={Boolean(touched.email && errors.email)} sx={{ ...theme.typography.customInput }}>
-              <InputLabel htmlFor="outlined-adornment-email-register">Email Address</InputLabel>
+            <FormControl
+              fullWidth
+              error={Boolean(touched.email && errors.email)}
+              sx={{ ...theme.typography.customInput }}
+            >
+              <InputLabel htmlFor="outlined-adornment-email-register">
+                Email Address
+              </InputLabel>
               <OutlinedInput
                 id="outlined-adornment-email-register"
                 type="email"
@@ -190,17 +219,26 @@ const AuthRegister = ({ ...others }) => {
                 inputProps={{}}
               />
               {touched.email && errors.email && (
-                <FormHelperText error id="standard-weight-helper-text--register">
+                <FormHelperText
+                  error
+                  id="standard-weight-helper-text--register"
+                >
                   {errors.email}
                 </FormHelperText>
               )}
             </FormControl>
 
-            <FormControl fullWidth error={Boolean(touched.password && errors.password)} sx={{ ...theme.typography.customInput }}>
-              <InputLabel htmlFor="outlined-adornment-password-register">Password</InputLabel>
+            <FormControl
+              fullWidth
+              error={Boolean(touched.password && errors.password)}
+              sx={{ ...theme.typography.customInput }}
+            >
+              <InputLabel htmlFor="outlined-adornment-password-register">
+                Password
+              </InputLabel>
               <OutlinedInput
                 id="outlined-adornment-password-register"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 value={values.password}
                 name="password"
                 label="Password"
@@ -225,7 +263,10 @@ const AuthRegister = ({ ...others }) => {
                 inputProps={{}}
               />
               {touched.password && errors.password && (
-                <FormHelperText error id="standard-weight-helper-text-password-register">
+                <FormHelperText
+                  error
+                  id="standard-weight-helper-text-password-register"
+                >
                   {errors.password}
                 </FormHelperText>
               )}
@@ -236,7 +277,10 @@ const AuthRegister = ({ ...others }) => {
                 <Box sx={{ mb: 2 }}>
                   <Grid container spacing={2} alignItems="center">
                     <Grid item>
-                      <Box style={{ backgroundColor: level?.color }} sx={{ width: 85, height: 8, borderRadius: '7px' }} />
+                      <Box
+                        style={{ backgroundColor: level?.color }}
+                        sx={{ width: 85, height: 8, borderRadius: "7px" }}
+                      />
                     </Grid>
                     <Grid item>
                       <Typography variant="subtitle1" fontSize="0.75rem">
@@ -273,7 +317,15 @@ const AuthRegister = ({ ...others }) => {
 
             <Box sx={{ mt: 2 }}>
               <AnimateButton>
-                <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="secondary">
+                <Button
+                  disableElevation
+                  disabled={isSubmitting}
+                  fullWidth
+                  size="large"
+                  type="submit"
+                  variant="contained"
+                  color="secondary"
+                >
                   Sign up
                 </Button>
               </AnimateButton>

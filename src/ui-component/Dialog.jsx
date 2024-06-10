@@ -1,24 +1,31 @@
-import React, {useEffect, useState} from 'react';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import { IconButton, styled } from '@mui/material';
+import React, { useEffect, useState } from "react";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import { IconButton, styled } from "@mui/material";
 import { RiCloseCircleLine } from "react-icons/ri";
-import { Box, display } from '@mui/system';
+import { Box, display } from "@mui/system";
 
 const CustomTitle = styled(DialogTitle)(() => ({
-  display: 'flex',
-  alignItems: 'center',
-}))
-const DialogBox = ({isOpen, title, handleClose, buttons, children, className}) => {
+  display: "flex",
+  alignItems: "center",
+}));
+const DialogBox = ({
+  isOpen,
+  title,
+  handleClose,
+  buttons,
+  children,
+  className,
+}) => {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     setOpen(isOpen);
-  }, [isOpen])
+  }, [isOpen]);
 
   return (
     <>
@@ -31,9 +38,9 @@ const DialogBox = ({isOpen, title, handleClose, buttons, children, className}) =
       >
         <CustomTitle id="alert-dialog-title">
           <span>{title}</span>
-          <Box sx={{display: 'flex', flexGrow: 1}}></Box>
-          <IconButton variant='outlined' onClick={handleClose} autoFocus>
-            <RiCloseCircleLine/>
+          <Box sx={{ display: "flex", flexGrow: 1 }}></Box>
+          <IconButton variant="outlined" onClick={handleClose} autoFocus>
+            <RiCloseCircleLine />
           </IconButton>
         </CustomTitle>
         <DialogContent id="alert-dialog-content">
@@ -43,13 +50,10 @@ const DialogBox = ({isOpen, title, handleClose, buttons, children, className}) =
             location data to Google, even when no apps are running.
           </DialogContentText> */}
         </DialogContent>
-        {buttons && <DialogActions>
-          {buttons}
-        </DialogActions>}
+        {buttons && <DialogActions>{buttons}</DialogActions>}
       </Dialog>
     </>
   );
-}
+};
 
-
-export default DialogBox
+export default DialogBox;

@@ -1,8 +1,8 @@
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
 // material-ui
-import { alpha, useTheme } from '@mui/material/styles';
-import MuiChip from '@mui/material/Chip';
+import { alpha, useTheme } from "@mui/material/styles";
+import MuiChip from "@mui/material/Chip";
 
 // ==============================|| CHIP ||============================== //
 
@@ -10,158 +10,158 @@ const Chip = ({ chipcolor, disabled, sx = {}, variant, ...others }) => {
   const theme = useTheme();
 
   let defaultSX = {
-    color: 'primary.main',
-    bgcolor: 'primary.light',
-    ':hover': {
-      color: 'primary.light',
-      bgcolor: 'primary.dark'
-    }
+    color: "primary.main",
+    bgcolor: "primary.light",
+    ":hover": {
+      color: "primary.light",
+      bgcolor: "primary.dark",
+    },
   };
 
   let outlineSX = {
-    color: 'primary.main',
-    bgcolor: 'transparent',
-    border: '1px solid',
-    borderColor: 'primary.main',
-    ':hover': {
-      color: 'primary.light',
-      bgcolor: 'primary.dark'
-    }
+    color: "primary.main",
+    bgcolor: "transparent",
+    border: "1px solid",
+    borderColor: "primary.main",
+    ":hover": {
+      color: "primary.light",
+      bgcolor: "primary.dark",
+    },
   };
 
   switch (chipcolor) {
-    case 'secondary':
-      variant === 'outlined'
+    case "secondary":
+      variant === "outlined"
         ? (outlineSX = {
-            color: 'secondary.main',
-            bgcolor: 'transparent',
-            border: '1px solid',
-            borderColor: 'secondary.main',
-            ':hover': {
-              color: 'secondary.main',
-              bgcolor: 'secondary.light'
-            }
+            color: "secondary.main",
+            bgcolor: "transparent",
+            border: "1px solid",
+            borderColor: "secondary.main",
+            ":hover": {
+              color: "secondary.main",
+              bgcolor: "secondary.light",
+            },
           })
         : (defaultSX = {
-            color: 'secondary.main',
-            bgcolor: 'secondary.light',
-            ':hover': {
-              color: 'secondary.light',
-              bgcolor: 'secondary.main'
-            }
+            color: "secondary.main",
+            bgcolor: "secondary.light",
+            ":hover": {
+              color: "secondary.light",
+              bgcolor: "secondary.main",
+            },
           });
       break;
-    case 'success':
-      variant === 'outlined'
+    case "success":
+      variant === "outlined"
         ? (outlineSX = {
-            color: 'success.dark',
-            bgcolor: 'transparent',
-            border: '1px solid',
-            borderColor: 'success.dark',
-            ':hover': {
-              color: 'success.dark',
-              bgcolor: alpha(theme.palette.success.light, 0.6)
-            }
+            color: "success.dark",
+            bgcolor: "transparent",
+            border: "1px solid",
+            borderColor: "success.dark",
+            ":hover": {
+              color: "success.dark",
+              bgcolor: alpha(theme.palette.success.light, 0.6),
+            },
           })
         : (defaultSX = {
-            color: 'success.dark',
+            color: "success.dark",
             bgcolor: alpha(theme.palette.success.light, 0.6),
-            ':hover': {
-              color: 'success.light',
-              bgcolor: 'success.dark'
-            }
+            ":hover": {
+              color: "success.light",
+              bgcolor: "success.dark",
+            },
           });
       break;
-    case 'error':
-      variant === 'outlined'
+    case "error":
+      variant === "outlined"
         ? (outlineSX = {
-            color: 'error.main',
-            bgcolor: 'transparent',
-            border: '1px solid',
-            borderColor: 'error.main',
-            ':hover': {
-              color: 'error.dark',
-              bgcolor: 'error.light'
-            }
+            color: "error.main",
+            bgcolor: "transparent",
+            border: "1px solid",
+            borderColor: "error.main",
+            ":hover": {
+              color: "error.dark",
+              bgcolor: "error.light",
+            },
           })
         : (defaultSX = {
-            color: 'error.dark',
+            color: "error.dark",
             bgcolor: alpha(theme.palette.error.light, 0.6),
-            ':hover': {
-              color: 'error.light',
-              bgcolor: 'error.dark'
-            }
+            ":hover": {
+              color: "error.light",
+              bgcolor: "error.dark",
+            },
           });
       break;
-    case 'orange':
-      variant === 'outlined'
+    case "orange":
+      variant === "outlined"
         ? (outlineSX = {
-            color: 'orange.dark',
-            bgcolor: 'transparent',
-            border: '1px solid',
-            borderColor: 'orange.main',
-            ':hover': {
-              color: 'orange.dark',
-              bgcolor: 'orange.light'
-            }
+            color: "orange.dark",
+            bgcolor: "transparent",
+            border: "1px solid",
+            borderColor: "orange.main",
+            ":hover": {
+              color: "orange.dark",
+              bgcolor: "orange.light",
+            },
           })
         : (defaultSX = {
-            color: 'orange.dark',
-            bgcolor: 'orange.light',
-            ':hover': {
-              color: 'orange.light',
-              bgcolor: 'orange.dark'
-            }
+            color: "orange.dark",
+            bgcolor: "orange.light",
+            ":hover": {
+              color: "orange.light",
+              bgcolor: "orange.dark",
+            },
           });
       break;
-    case 'warning':
-      variant === 'outlined'
+    case "warning":
+      variant === "outlined"
         ? (outlineSX = {
-            color: 'warning.dark',
-            bgcolor: 'transparent',
-            border: '1px solid',
-            borderColor: 'warning.dark',
-            ':hover': {
-              color: 'warning.dark',
-              bgcolor: 'warning.light'
-            }
+            color: "warning.dark",
+            bgcolor: "transparent",
+            border: "1px solid",
+            borderColor: "warning.dark",
+            ":hover": {
+              color: "warning.dark",
+              bgcolor: "warning.light",
+            },
           })
         : (defaultSX = {
-            color: 'warning.dark',
-            bgcolor: 'warning.light',
-            ':hover': {
-              color: 'warning.light',
-              bgcolor: 'warning.dark'
-            }
+            color: "warning.dark",
+            bgcolor: "warning.light",
+            ":hover": {
+              color: "warning.light",
+              bgcolor: "warning.dark",
+            },
           });
       break;
     default:
   }
 
   if (disabled) {
-    variant === 'outlined'
+    variant === "outlined"
       ? (outlineSX = {
-          color: 'grey.500',
-          bgcolor: 'transparent',
-          border: '1px solid',
-          borderColor: 'grey.500',
-          ':hover': {
-            color: 'grey.500',
-            bgcolor: 'transparent'
-          }
+          color: "grey.500",
+          bgcolor: "transparent",
+          border: "1px solid",
+          borderColor: "grey.500",
+          ":hover": {
+            color: "grey.500",
+            bgcolor: "transparent",
+          },
         })
       : (defaultSX = {
-          color: 'grey.500',
-          bgcolor: 'grey.50',
-          ':hover': {
-            color: 'grey.500',
-            bgcolor: 'grey.50'
-          }
+          color: "grey.500",
+          bgcolor: "grey.50",
+          ":hover": {
+            color: "grey.500",
+            bgcolor: "grey.50",
+          },
         });
   }
 
   let SX = defaultSX;
-  if (variant === 'outlined') {
+  if (variant === "outlined") {
     SX = outlineSX;
   }
   SX = { ...SX, ...sx };
@@ -172,7 +172,7 @@ Chip.propTypes = {
   sx: PropTypes.object,
   chipcolor: PropTypes.string,
   variant: PropTypes.string,
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
 };
 
 export default Chip;

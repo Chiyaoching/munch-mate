@@ -2,7 +2,7 @@
  * @Author: Seven Yaoching-Chi
  * @Date: 2022-11-29 14:31:01
  * @Last Modified by: Seven Yaoching-Chi
- * @Last Modified time: 2024-06-07 23:47:28
+ * @Last Modified time: 2024-06-09 17:12:38
  */
 
 const express = require('express');
@@ -59,7 +59,7 @@ router.post('/init', authMiddleware, openaiMiddleware, async (req, res) => {
       const newConversation = new Conversation({ userId: id, messages: JSON.stringify(messages), createAt: new Date().getTime() });
       await newConversation.save()
       
-      res.status(200).json({conversationId: newConversation._id, messages});
+      res.status(200).json(newConversation);
     } catch (err) {
       res.status(400).json('openAI API failed.');
     }

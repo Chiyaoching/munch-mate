@@ -2,7 +2,7 @@
  * @Author: Seven Yaoching-Chi 
  * @Date: 2024-06-06 15:46:51 
  * @Last Modified by: Seven Yaoching-Chi
- * @Last Modified time: 2024-06-07 15:08:23
+ * @Last Modified time: 2024-06-09 21:51:12
  */
 
 const path = require('path');
@@ -48,12 +48,12 @@ mongoose.connect(mongo_url, {
 
 http.createServer(app).listen(port, () => { infoLog(`Server running at: http://localhost:${port}`); });
 
-app.use('/', express.static(path.join(__dirname, '../build')));
+app.use('/', express.static(path.join(__dirname, '../dist')));
 app.use('/api/prompt', require('./api/openai'));
 app.use('/api/auth', require('./api/auth'));
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../build/index.html'));
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
 process

@@ -1,7 +1,7 @@
 // material-ui
-import Link from '@mui/material/Link';
-import Typography from '@mui/material/Typography';
-import Stack from '@mui/material/Stack';
+import Link from "@mui/material/Link";
+import Typography from "@mui/material/Typography";
+import Stack from "@mui/material/Stack";
 
 // ==============================|| FOOTER - AUTHENTICATION 2 & 3 ||============================== //
 
@@ -10,9 +10,7 @@ const AuthFooter = () => (
     <Typography variant="subtitle2">
       For GPT Application class in CSTU
     </Typography>
-    <Typography variant="subtitle2">
-      &copy; Team 6
-    </Typography>
+    <Typography variant="subtitle2">&copy; Team 6</Typography>
   </Stack>
 );
 
