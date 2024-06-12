@@ -23,10 +23,10 @@ export const sendPrompt = (prompt, conversationId) => async (dispatch) => {
   }
 };
 
-export const initPrompt = (prompt) => async (dispatch) => {
+export const initPrompt = (sysContentIndex, personaTypeIndex) => async (dispatch) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const res = await api.post("/api/prompt/init", { message: prompt });
+      const res = await api.post("/api/prompt/init", { sysContentIndex, personaTypeIndex });
       // update the current conversation content.
       dispatch({
         type: INIT_CONVERSATION,

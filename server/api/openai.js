@@ -2,7 +2,7 @@
  * @Author: Seven Yaoching-Chi
  * @Date: 2022-11-29 14:31:01
  * @Last Modified by: Seven Yaoching-Chi
- * @Last Modified time: 2024-06-09 17:12:38
+ * @Last Modified time: 2024-06-10 02:43:22
  */
 
 const express = require('express');
@@ -12,7 +12,7 @@ const authMiddleware = require('../middleware/auth');
 const openaiMiddleware = require('../middleware/openai');
 const { handleAPIError: errorHandler } = require('../helper/errorHandler');
 const Conversation = require('../models/conversation')
-const {TOOLS} = require('../constant/constants')
+const {TOOLS, SYS_CONTENTS, PERSONAS} = require('../constant/constants');
 
 function resolve(dir) {
   return path.join(__dirname, '..', dir);
@@ -46,10 +46,9 @@ router.get('/conversation/:id', authMiddleware, async (req, res) => {
 
 router.post('/init', authMiddleware, openaiMiddleware, async (req, res) => {
   const params = req.body;
-  if (params?.message && req.user) {
+  if (!isNaN(params.sysContentIndex) && !isNaN(params.personaTypeIndex) && req.user) {
     const {id} = req.user
-    const messages = [gen_sys_msg(params.message)]
-
+    const messages = [gen_sys_msg(SYS_CONTENTS[params.sysContentIndex] + PERSONAS[params.personaTypeIndex])]
     const openai = global.currentUsers[id].openAIInfo.openai
     try {
       const completion = await openai.createConversation(messages)

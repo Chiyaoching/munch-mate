@@ -2,7 +2,7 @@
  * @Author: Seven Yaoching-Chi 
  * @Date: 2024-06-07 14:56:07 
  * @Last Modified by: Seven Yaoching-Chi
- * @Last Modified time: 2024-06-07 23:32:44
+ * @Last Modified time: 2024-06-10 02:41:08
  */
 
 const config = require('../config');
@@ -13,11 +13,12 @@ class OpenAIEvents {
   constructor(apiKey) {
     this.apiKey = apiKey;
     this.openai = new OpenAI({apiKey})
-    // this.model = 'gpt-4o'
-    this.model = 'gpt-3.5-turbo'
-    this.temperature = 0.7
+    this.model = 'gpt-4o'
+    // this.model = 'gpt-3.5-turbo'
+    this.temperature = 0
     this.availableFunctions = {
-      "getRestaurants": this.getRestaurants
+      "getRestaurants": this.getRestaurants,
+      "makeReservation": this.makeReservation
     }
   }
 
@@ -67,6 +68,16 @@ class OpenAIEvents {
     })
   }
 
+  makeReservation (restaurant_name, date, time, party_size) {
+    return JSON.stringify({
+      "restaurant_name": restaurant_name,
+      "date": date,
+      "time": time,
+      "party_size": party_size,
+      "confirmation_number": "ABC123456",
+      "status": "Confirmed",
+    })
+  }
 }
 
 module.exports = OpenAIEvents

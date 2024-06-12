@@ -65,16 +65,13 @@ const SettingBox = React.memo(({ isOpen, handleClose, handleConfirm }) => {
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleMouseDownPassword = (event) => event.preventDefault();
 
-  const fetchUserSettings = async () => {
-    const userInfo = await dispatch(getUserSetting());
-    setApiKey(userInfo?.apiKey);
-  };
-
   useEffect(() => {
     if (isOpen) {
-      fetchUserSettings();
+      if (userSettings) {
+        setApiKey(userSettings?.apiKey);
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, userSettings]);
 
   return (
     <DialogBox

@@ -23,7 +23,7 @@ import PerfectScrollbar from "react-perfect-scrollbar";
 import { BrowserView, MobileView } from "react-device-detect";
 
 // project imports
-import MenuCard from "./MenuCard";
+// import MenuCard from "./MenuCard";
 // import MenuList from './MenuList';
 import LogoSection from "../LogoSection";
 import Chip from "ui-component/extended/Chip";
@@ -37,18 +37,12 @@ import { getUserConversations } from "store/user/actions";
 import { useEffect, useRef, useState } from "react";
 import DialogBox from "ui-component/Dialog";
 import MainCard from "ui-component/cards/MainCard";
-import { PERSONAS } from "store/constant";
 import AlertDialog from "ui-component/AlertDialog";
 import { SET_ALERT_OPEN } from "store/actions";
 // ==============================|| SIDEBAR DRAWER ||============================== //
 const MenuListContext = React.createContext({});
 
-const MenuItems = React.memo(({ id, title, createAt, selected }) => {
-  const navigate = useNavigate();
-
-  const handleNavigate = (e) => {
-    navigate(`/conversation/${e.currentTarget.dataset.cid}`);
-  };
+const MenuItems = React.memo(({ id, title, createAt, selected, handleNavigate }) => {
 
   const dateLabel = useCallback(
     (createAt) => (
@@ -69,6 +63,10 @@ const MenuItems = React.memo(({ id, title, createAt, selected }) => {
     [],
   );
 
+  // const handleLinkClick = useCallback((e) => {
+  //   handleNavigate(e)
+  // }, [])
+
   return (
     <ListItemButton
       sx={{ py: 0.5, my: 0.5, borderRadius: "12px" }}
@@ -88,6 +86,11 @@ const MenuItems = React.memo(({ id, title, createAt, selected }) => {
 const MenuList = () => {
   const conversations = useSelector((state) => state.user.conversations);
   const { conversationId } = useContext(MenuListContext);
+  const navigate = useNavigate();
+
+  const handleNavigate = useCallback((e) => {
+    navigate(`/conversation/${e.currentTarget.dataset.cid}`);
+  }, [navigate]);
 
   return conversations.map((c, index) => {
     return (
@@ -97,6 +100,7 @@ const MenuList = () => {
         title={`Conversation-${conversations.length - index}`}
         createAt={c.createAt}
         selected={conversationId === c._id}
+        handleNavigate={handleNavigate}
       />
     );
   });
@@ -113,8 +117,8 @@ const AddButton = ({ handleClick }) => {
 };
 
 const PersonaCard = styled(MainCard)(() => ({
-  width: "150px",
-  height: "150px",
+  width: "100px",
+  height: "100px",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
@@ -122,29 +126,23 @@ const PersonaCard = styled(MainCard)(() => ({
 }));
 
 const PersonaBox = React.memo(
-  ({ isOpenAddDialog, handleClose, handlePersonaClick }) => {
+  ({ isOpenAddDialog, personas, handleClose, handlePersonaClick }) => {
     return (
       <DialogBox
         isOpen={isOpenAddDialog}
         title="What's the style you're looking for?"
         handleClose={handleClose}
       >
-        <Grid container spacing={2}>
-          <Grid item xs={4}>
-            <PersonaCard border onClick={() => handlePersonaClick(0)}>
-              <Box>Type 1</Box>
-            </PersonaCard>
-          </Grid>
-          <Grid item xs={4}>
-            <PersonaCard border onClick={() => handlePersonaClick(1)}>
-              <Box>Type 2</Box>
-            </PersonaCard>
-          </Grid>
-          <Grid item xs={4}>
-            <PersonaCard border onClick={() => handlePersonaClick(2)}>
-              <Box>Type 3</Box>
-            </PersonaCard>
-          </Grid>
+        <Grid container spacing={0} justifyContent='space-around'>
+          {personas?.map((item, index) => {
+            return (
+              <Grid item key={`PERSONAS${index}`} xs={Math.floor(12/personas.length)}>
+                <PersonaCard border onClick={() => handlePersonaClick(index)}>
+                  <Box>Type {index+1}</Box>
+                </PersonaCard>
+              </Grid>
+            )
+          })}
         </Grid>
       </DialogBox>
     );
@@ -156,13 +154,18 @@ const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
   const { conversationId } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
+  const userSettings = useSelector(state => state.user.userInfo)
   const matchUpMd = useMediaQuery(theme.breakpoints.up("md"));
   const [isOpenAddDialog, setOpenAddDialog] = useState(false);
+  // const conversations = useSelector((state) => state.user.conversations);
+
+  const sysContent = useMemo(() => userSettings?.sysContent, [userSettings?.sysContent])
+  const personas = useMemo(() => userSettings?.personas, [userSettings?.personas])
 
   const handleAddConversation = async (type) => {
-    if (PERSONAS[type]) {
+    if (personas[type]) {
       try {
-        const c = await dispatch(initPrompt(PERSONAS[type]));
+        const c = await dispatch(initPrompt(2, type));
         // await dispatch(getUserConversations())
         navigate(`/conversation/${c.conversationId}`);
       } catch (err) {
@@ -193,6 +196,7 @@ const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
       </Box>
       <PersonaBox
         isOpenAddDialog={isOpenAddDialog}
+        personas={personas}
         handleClose={handleCloseAddDialog}
         handlePersonaClick={handlePersonaClick}
       />
@@ -215,7 +219,7 @@ const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
       <MobileView>
         <Box sx={{ px: 2 }}>
           <AddButton handleClick={handleOpenAddDialog} />
-          <MenuList conversationId={conversationId} />
+          {/* <MenuList conversationId={conversationId} /> */}
         </Box>
       </MobileView>
     </>

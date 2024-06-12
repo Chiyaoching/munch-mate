@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const {JWT_SECRET} = require('../config');
 const authMiddleware = require('../middleware/auth');
-
+const {SYS_CONTENTS, PERSONAS} = require('../constant/constants');
 const router = express.Router();
 
 // Register
@@ -69,7 +69,7 @@ router.get('/setting', authMiddleware, async (req, res) => {
   if (req.user.id) {
     try {
       const user = await User.findById(req.user.id);
-      res.status(200).json(user);
+      res.status(200).json({id: user._id, username: user.username, email: user.email, apiKey: user.apiKey, sysContent: SYS_CONTENTS, personas: PERSONAS});
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

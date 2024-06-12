@@ -21,7 +21,7 @@ import { IconChevronRight } from "@tabler/icons-react";
 
 import { isAuthenticated } from "utils/auth";
 import { useEffect } from "react";
-import { SET_USER_INFO, getUserConversations } from "store/user/actions";
+import { SET_USER_INFO, getUserConversations, getUserSetting } from "store/user/actions";
 
 const Main = styled("main", {
   shouldForwardProp: (prop) => prop !== "open" && prop !== "theme",
@@ -77,6 +77,7 @@ const MainLayout = () => {
     } else {
       dispatch({ type: SET_USER_INFO });
       dispatch(getUserConversations());
+      dispatch(getUserSetting());
     }
   }, []);
 
