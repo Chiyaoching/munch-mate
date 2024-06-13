@@ -3,11 +3,11 @@ import PropTypes from "prop-types";
 
 // material-ui
 import {
-  Button,
-  Grid,
   IconButton,
+  ImageList,
+  ImageListItem,
+  ImageListItemBar,
   ListItemButton,
-  ListItemIcon,
   ListItemText,
   Typography,
   styled,
@@ -15,7 +15,6 @@ import {
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
-import Stack from "@mui/material/Stack";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 // third-party
@@ -23,20 +22,15 @@ import PerfectScrollbar from "react-perfect-scrollbar";
 import { BrowserView, MobileView } from "react-device-detect";
 
 // project imports
-// import MenuCard from "./MenuCard";
-// import MenuList from './MenuList';
 import LogoSection from "../LogoSection";
-import Chip from "ui-component/extended/Chip";
 
 import { drawerWidth } from "store/constant";
 import { RiStickyNoteAddLine } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { initPrompt } from "store/prompt/actions";
-import { getUserConversations } from "store/user/actions";
 import { useEffect, useRef, useState } from "react";
 import DialogBox from "ui-component/Dialog";
-import MainCard from "ui-component/cards/MainCard";
 import AlertDialog from "ui-component/AlertDialog";
 import { SET_ALERT_OPEN } from "store/actions";
 // ==============================|| SIDEBAR DRAWER ||============================== //
@@ -116,34 +110,86 @@ const AddButton = ({ handleClick }) => {
   );
 };
 
-const PersonaCard = styled(MainCard)(() => ({
-  width: "100px",
-  height: "100px",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  cursor: "pointer",
-}));
+const images = import.meta.glob('../../../assets/images/persona*.{png,jpg,jpeg,svg}');
 
+const ImageTitle = styled(ImageListItemBar)(({ theme }) => ({
+  backgroundColor: theme.palette.primary.main,
+  opacity: 0.9,
+  color: theme.palette.primary.contrastText,
+  '.MuiImageListItemBar-titleWrap': {
+    paddingTop: 3,
+    paddingBottom: 3,
+  }
+}))
+
+const ImageBox = ({item, index, cols, rows, handleClick}) => {
+  const theme = useTheme()
+    // Find the correct image import
+    const imagePath = Object.keys(images).find(path => path.includes(item.image));
+
+    // Use React state to handle the dynamically imported images
+    const [src, setSrc] = useState(null);
+
+    const srcset = useCallback((image, size, rows = 1, cols = 1) => {
+      return {
+        src: `${image}?w=${size * cols}&h=${size * rows}&fit=crop&auto=format`,
+        srcSet: `${image}?w=${size * cols}&h=${
+          size * rows
+        }&fit=crop&auto=format&dpr=2 2x`,
+      };
+    }, [])
+
+    useEffect(() => {
+      if (imagePath) {
+        images[imagePath]().then(module => {
+          setSrc(module.default);
+        });
+      }
+    }, [imagePath]);
+
+    // Render the image
+    return (
+      <ImageListItem cols={cols || 1} rows={rows || 1} onClick={handleClick} sx={{cursor: 'pointer'}}>
+        <img
+          {...srcset(src, 200, rows, cols)}
+          alt={item.image}
+          loading="lazy"
+        />
+        <ImageTitle
+          theme={theme}
+          title={item.name}
+          // subtitle={item.name}
+        />
+      </ImageListItem>
+    )
+}
 const PersonaBox = React.memo(
   ({ isOpenAddDialog, personas, handleClose, handlePersonaClick }) => {
+    
     return (
       <DialogBox
         isOpen={isOpenAddDialog}
         title="What's the style you're looking for?"
         handleClose={handleClose}
       >
-        <Grid container spacing={0} justifyContent='space-around'>
-          {personas?.map((item, index) => {
-            return (
-              <Grid item key={`PERSONAS${index}`} xs={Math.floor(12/personas.length)}>
-                <PersonaCard border onClick={() => handlePersonaClick(index)}>
-                  <Box>Type {index+1}</Box>
-                </PersonaCard>
-              </Grid>
-            )
-          })}
-        </Grid>
+        {personas && 
+          <ImageList
+            variant="quilted"
+            cols={4}
+            rowHeight={200}
+          >
+            {personas.map((item, index) => (
+              <ImageBox 
+                key={item.name} 
+                item={item}
+                index={index}
+                cols={index === 0 ? 2 : 1} 
+                rows={index === 0 ? 2 : 1}
+                handleClick={() => handlePersonaClick(index)}
+              />
+            ))}
+          </ImageList>
+        }
       </DialogBox>
     );
   },
@@ -157,9 +203,7 @@ const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
   const userSettings = useSelector(state => state.user.userInfo)
   const matchUpMd = useMediaQuery(theme.breakpoints.up("md"));
   const [isOpenAddDialog, setOpenAddDialog] = useState(false);
-  // const conversations = useSelector((state) => state.user.conversations);
 
-  const sysContent = useMemo(() => userSettings?.sysContent, [userSettings?.sysContent])
   const personas = useMemo(() => userSettings?.personas, [userSettings?.personas])
 
   const handleAddConversation = async (type) => {
@@ -219,7 +263,9 @@ const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
       <MobileView>
         <Box sx={{ px: 2 }}>
           <AddButton handleClick={handleOpenAddDialog} />
-          {/* <MenuList conversationId={conversationId} /> */}
+          <MenuListContext.Provider value={contextValues}>
+            <MenuList />
+          </MenuListContext.Provider>
         </Box>
       </MobileView>
     </>

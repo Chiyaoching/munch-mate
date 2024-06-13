@@ -16,6 +16,7 @@ const CustomTitle = styled(DialogTitle)(() => ({
 const DialogBox = ({
   isOpen,
   title,
+  maxWidth,
   handleClose,
   buttons,
   children,
@@ -30,6 +31,7 @@ const DialogBox = ({
   return (
     <Dialog
       fullWidth
+      maxWidth={maxWidth || 'md'}
       open={open}
       onClose={handleClose}
       aria-labelledby="alert-dialog-title"

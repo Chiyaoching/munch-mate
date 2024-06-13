@@ -2,7 +2,7 @@
  * @Author: Seven Yaoching-Chi
  * @Date: 2022-11-29 14:31:01
  * @Last Modified by: Seven Yaoching-Chi
- * @Last Modified time: 2024-06-10 02:43:22
+ * @Last Modified time: 2024-06-13 16:52:41
  */
 
 const express = require('express');
@@ -48,7 +48,7 @@ router.post('/init', authMiddleware, openaiMiddleware, async (req, res) => {
   const params = req.body;
   if (!isNaN(params.sysContentIndex) && !isNaN(params.personaTypeIndex) && req.user) {
     const {id} = req.user
-    const messages = [gen_sys_msg(SYS_CONTENTS[params.sysContentIndex] + PERSONAS[params.personaTypeIndex])]
+    const messages = [gen_sys_msg(SYS_CONTENTS[params.sysContentIndex] + PERSONAS[params.personaTypeIndex].content)]
     const openai = global.currentUsers[id].openAIInfo.openai
     try {
       const completion = await openai.createConversation(messages)
@@ -80,12 +80,16 @@ router.post('/msg', authMiddleware, openaiMiddleware, async (req, res) => {
       let completion = await openai.createConversation(messages, TOOLS, 'auto')
       
       let responseMsg = completion.choices[0].message
-      // console.log(responseMsg)
       if (responseMsg.tool_calls) {
         messages.push(responseMsg)
         const funcCallMsgs = openai.functionCall(responseMsg)
+        // handle the async function call for the results.
+        const allMsgs = await Promise.all(funcCallMsgs.map(res => res.content))
+        for (let i = 0; i < funcCallMsgs.length; i++) {
+          funcCallMsgs[i].content = allMsgs[i]
+        }
+        console.log(funcCallMsgs)
         messages = [...messages, ...funcCallMsgs]
-        // console.log(messages)
         completion = await openai.createConversation(messages)
         responseMsg = gen_assist_msg(completion.choices[0].message.content, true)
         // console.log(responseMsg)

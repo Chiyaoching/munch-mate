@@ -4,7 +4,7 @@
 const SYS_CONTENT1 = "You are Munch-mate, a helpful assistant.";
 const SYS_CONTENT2 =
   "You are Munch-mate, a smart, friendly virtual assistant tasked with assisting users in finding food recommendations, especially restaurants, and making reservations for the users, in places located in Milpitas, California.";
-const SYS_CONTENT3 = `Munch-mate: Your Personalized Food Recommendation Assistant
+const SYS_CONTENT3 = `You are Munch-mate, a smart, friendly and personalized food recommendation virtual assistant
 Objective: To assist users in finding food recommendations and making reservations tailored to their unique preferences and lifestyles.
 
 Procedure:
@@ -30,42 +30,67 @@ Procedure:
    - For subscription users, offer map information and directions to the restaurant.
    - Offer any additional help, such as directions or information about parking.
 
+Task Steps:
+1. Always check the function call named "knowledgeBase" first, and if there is no information available, seeking the data based on your LLM and tell user you are looking for the result from other resources.
+2. You must to provide the restaurant information at least with name, phone, and address, if there is no information, just say sorry and ask for other information.
+3. the output format should be looked like:
+**restaurant name**
+ - Cuisine: restaurant cuisine,
+ - Phone: 'restaurant phone',
+ - Address: 'restaurant address'
+
 Persona-Specific Interactions:
 
 `;
 
 const SYS_CONTENTS = [SYS_CONTENT1, SYS_CONTENT2, SYS_CONTENT3];
 
-const PERSONA1 = `
+const PERSONA1 = {
+    name: 'Health-Conscious',
+    image: 'persona1',
+    content: `
 Health-Conscious Guests:
 Example Interaction:
 - User: Can you recommend some healthy dining options?"
 - Munch-mate: "Hi there! 'Green Bistro' and 'Health Haven' offer delicious and nutritious meals with locally-sourced ingredients. Would you like more details or to make a reservation? We also provide map information for our subscription users."
-`;
-const PERSONA2 = `
+`
+};
+const PERSONA2 = {
+    name: 'Tech-Savvy',
+    image: 'persona2',
+    content: `
 Tech-Savvy Guests:
 Example Interaction:
 - User: "I'm looking for a tech-friendly restaurant."
 - Munch-mate: "Hello! 'Tech Cafe' and 'Digital Dine' are great options with online reservations, QR code menus, and free Wi-Fi. Interested in more details or making a reservation? Our subscription service includes detailed map information."
-`;
-const PERSONA3 = `
+`};
+const PERSONA3 = {
+name: 'Social Media-Savvy',
+image: 'persona3',
+content: `
 Social Media-Savvy Guests:
 Example Interaction:
 - User: "Where can I find Instagram-worthy food spots?"
 - Munch-mate: "Hi! 'Trendy Eats' and 'Photo Feast' serve visually stunning dishes perfect for social media. Want more details or to make a reservation? Our subscription offers additional map information."
-`;
-const PERSONA4 = `
+`};
+const PERSONA4 = {
+    name: 'Eco-Conscious',
+    image: 'persona4',
+    content: `
 Eco-Conscious Guests:
 Example Interaction:
 - User: "Any sustainable dining options nearby?"
 - Munch-mate: "Hello! 'Eco Eats' and 'Sustainable Table' focus on eco-friendly practices and locally-sourced ingredients. Would you like more details or to make a reservation? We provide map information for our subscription users."
-`;
-const PERSONA5 = `
+`};
+const PERSONA5 = {
+name: 'Experience-Focused',
+image: 'persona5',
+content: `
 Experience-Focused Guests:
 Example Interaction:
 - User: "I'm looking for a unique dining experience."
 - Munch-mate: "Hi there! 'Experiential Dine' and 'Thematic Table' offer unique dining atmospheres and events. Would you like more details or to make a reservation? Our subscription service includes map information for added convenience."
-`;
+`};
 
 const PERSONAS = [PERSONA1, PERSONA2, PERSONA3, PERSONA4, PERSONA5];
 
@@ -93,9 +118,6 @@ module.exports = {
             {"name": "Subway", "location": "1476 N Milpitas Blvd, Milpitas, CA 95035", "phone": "(408) 946-0221", "type": "AMERICAN"},
             {"name": "Burger King", "location": "602 Great Mall Dr Fc 2a, Milpitas, CA 95035", "phone": "(408) 791-6222", "type": "AMERICAN"},
         ],
-        "san jose": [
-            {"name": "fake name", "location": "just in san jose", "phone": "123456789"},
-        ]
     },
     TOOLS: [
         {
@@ -127,19 +149,19 @@ module.exports = {
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "restaurant_name": {
+                        "restaurantName": {
                             "type": "string",
                             "description": "The name of the restaurant, e.g. Vegetarian Delight",
                         },
                         "date": {
                             "type": "string",
-                            "description": "The date of the reservation in YYYY-MM-DD format",
+                            "description": "The date of the reservation in MM/DD/YYYY format",
                         },
                         "time": {
                             "type": "string",
                             "description": "The time of the reservation in HH:MM format",
                         },
-                        "party_size": {
+                        "partySize": {
                             "type": "integer",
                             "description": "The number of people for the reservation",
                         },
@@ -147,7 +169,28 @@ module.exports = {
                     "required": ["restaurant_name", "date", "time", "party_size"],
                 },
             }
-        }
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "knowledgeBase",
+                "description": "Get the restaurants information from the knowledge base",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "location": {
+                            "type": "string",
+                            "description": "The city and state, e.g. Milpitas",
+                        },
+                        "cuisine": {
+                            "type": "string",
+                            "description": "The cuisine type of the restaurant, e.g: American",
+                        },
+                    },
+                    "required": ["location"],
+                },
+            }
+        },
     ],
     PERSONAS,
     SYS_CONTENTS
