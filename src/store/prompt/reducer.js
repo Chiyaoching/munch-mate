@@ -1,11 +1,12 @@
 import {
-  SET_USER_MESSAGES,
   INIT_CONVERSATION,
   ADD_USER_MESSAGE,
+  IS_LOADING_RESPONSE,
 } from "./actions";
 
 export const initialState = {
   messages: [],
+  isLoading: false,
   currConversationId: null,
 };
 
@@ -22,12 +23,11 @@ const promptReducer = (state = initialState, action) => {
         currConversationId: action.conversation._id,
         messages: action.conversation.messages,
       };
-    // case SET_USER_MESSAGES:
-    //   return {
-    //     ...state,
-    //     currConversationId: action.conversation.conversationId,
-    //     messages: action.conversation.messages
-    //   }
+    case IS_LOADING_RESPONSE:
+      return {
+        ...state,
+        isLoading: action.isLoading
+      }
     default:
       return state;
   }

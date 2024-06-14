@@ -2,12 +2,13 @@ import api from "api/auth";
 import { SET_ALERT_OPEN } from "store/actions";
 import { ADD_USER_CONVERSATION } from "store/user/actions";
 
-export const SET_USER_MESSAGES = "SET_USER_MESSAGES";
 export const ADD_USER_MESSAGE = "ADD_USER_MESSAGE";
 export const INIT_CONVERSATION = "INIT_CONVERSATION";
+export const IS_LOADING_RESPONSE = "IS_LOADING_RESPONSE";
 
 export const sendPrompt = (prompt, conversationId) => async (dispatch) => {
   try {
+    dispatch({ type: IS_LOADING_RESPONSE, isLoading: true });
     dispatch({
       type: ADD_USER_MESSAGE,
       message: { role: "user", content: prompt },
@@ -20,6 +21,8 @@ export const sendPrompt = (prompt, conversationId) => async (dispatch) => {
       alertOpen: true,
       alertMsg: err.response.data || err.message,
     });
+  } finally {
+    dispatch({ type: IS_LOADING_RESPONSE, isLoading: false });
   }
 };
 

@@ -1,20 +1,14 @@
 import {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
 } from "react";
 // material-ui
 import {
-  Avatar,
-  Box,
-  CircularProgress,
   Grid,
   InputAdornment,
-  LinearProgress,
   OutlinedInput,
-  styled,
   useTheme,
 } from "@mui/material";
 // assets
@@ -30,6 +24,7 @@ import {
 
 import { AssistantBox, AssistantLoadingBox } from "./chatbot/AssistantBox";
 import UserBox from "./chatbot/UserBox";
+import debounce from 'hooks/debounce.js';
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
 const Dashboard = () => {
@@ -37,8 +32,7 @@ const Dashboard = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const messages = useSelector((state) => state.prompt.messages);
-  const [isLoading, setLoading] = useState(true);
-  const [isAssistantLoading, setAssistantLoading] = useState(false);
+  const isAssistantLoading = useSelector((state) => state.prompt.isLoading);
   const [chatboxHeight, setChatboxHeight] = useState(
     window.innerHeight -
       parseInt(theme.typography.mainContent.marginTop, 10) -
@@ -57,9 +51,9 @@ const Dashboard = () => {
     );
   }, []);
 
-  const fetchMessages = async (conversationId) => {
+  const fetchMessages = useCallback(async (conversationId) => {
     await dispatch(getUserConversation(conversationId));
-  };
+  }, []);
 
   useEffect(() => {
     window.addEventListener("resize", handleResize);
@@ -70,18 +64,13 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (conversationId) {
+      setPrompt("");
       fetchMessages(conversationId);
     }
   }, [conversationId]);
 
   useEffect(() => {
     scrollToBottom();
-    const timer = setTimeout(() => {
-      setAssistantLoading(false);
-    }, 1000);
-    return () => {
-      clearTimeout(timer);
-    };
   }, [messages, isAssistantLoading]);
 
   const scrollToBottom = () => {
@@ -91,13 +80,13 @@ const Dashboard = () => {
     }
   };
 
-  const handleSubmitPrompt = useCallback(() => {
+  const submitPrompt = async () => {
     if (prompt) {
-      setAssistantLoading(true);
-      dispatch(sendPrompt(prompt, conversationId));
+      await dispatch(sendPrompt(prompt, conversationId));
       setPrompt("");
     }
-  }, [prompt, conversationId]);
+  }
+  const handleSubmitPrompt = useCallback(debounce(submitPrompt, 500), [prompt, conversationId]);
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
@@ -152,6 +141,7 @@ const Dashboard = () => {
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Set prompt here..."
+          disabled={isAssistantLoading}
           onKeyDown={handleKeyDown}
           endAdornment={
             <InputAdornment position="end" sx={{ cursor: "pointer" }}>
