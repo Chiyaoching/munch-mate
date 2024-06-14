@@ -33,11 +33,16 @@ import { useEffect, useRef, useState } from "react";
 import DialogBox from "ui-component/Dialog";
 import AlertDialog from "ui-component/AlertDialog";
 import { SET_ALERT_OPEN } from "store/actions";
+const images = import.meta.glob(
+  "../../../assets/images/persona*.{png,jpg,jpeg,svg}",
+);
+
 // ==============================|| SIDEBAR DRAWER ||============================== //
 const MenuListContext = React.createContext({});
 
 const MenuItems = React.memo(
-  ({ id, title, createAt, selected, handleNavigate }) => {
+  ({ title, item, createAt, selected, handleNavigate }) => {
+    
     const dateLabel = useCallback(
       (createAt) => (
         <Typography
@@ -52,26 +57,36 @@ const MenuItems = React.memo(
       [],
     );
 
+    const subTitleLabel = useCallback(
+      (persona) => (
+        <Typography
+          variant="caption"
+          display="block"
+          gutterBottom
+          sx={{ fontSize: 10, opacity: persona ? 1 : 0 }}
+        >
+          {persona}
+        </Typography>
+      ),
+      [],
+    );
+
     const titleLabel = useCallback(
       (title) => <Typography color="inherit">{title}</Typography>,
       [],
     );
-
-    // const handleLinkClick = useCallback((e) => {
-    //   handleNavigate(e)
-    // }, [])
-
     return (
       <ListItemButton
         sx={{ py: 0.5, my: 0.5, borderRadius: "12px" }}
         selected={selected}
-        data-cid={id}
+        data-cid={item._id}
         onClick={handleNavigate}
       >
         <ListItemText
           sx={{ my: 0 }}
           primary={titleLabel(title)}
-          secondary={dateLabel(createAt)}
+          secondary={subTitleLabel(item.persona)}
+          // secondary={dateLabel(createAt)}
         />
       </ListItemButton>
     );
@@ -94,9 +109,8 @@ const MenuList = () => {
     return (
       <MenuItems
         key={c._id}
-        id={c._id}
+        item={c}
         title={`Conversation-${conversations.length - index}`}
-        createAt={c.createAt}
         selected={conversationId === c._id}
         handleNavigate={handleNavigate}
       />
@@ -114,9 +128,7 @@ const AddButton = ({ handleClick }) => {
   );
 };
 
-const images = import.meta.glob(
-  "../../../assets/images/persona*.{png,jpg,jpeg,svg}",
-);
+
 
 const ImageTitle = styled(ImageListItemBar)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,

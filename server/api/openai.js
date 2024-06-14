@@ -2,7 +2,7 @@
  * @Author: Seven Yaoching-Chi
  * @Date: 2022-11-29 14:31:01
  * @Last Modified by: Seven Yaoching-Chi
- * @Last Modified time: 2024-06-13 16:52:41
+ * @Last Modified time: 2024-06-14 00:40:36
  */
 
 const express = require('express');
@@ -25,7 +25,7 @@ const gen_user_msg = (msg) => ({ role: "user", content: msg })
 router.get('/conversations', authMiddleware, async (req, res) => {
   if (req.user) {
     const conversations = await Conversation.find({ userId: req.user.id });
-    res.status(200).json(conversations)
+    res.status(200).json(conversations.map(item => ({...item._doc, messages: ''})))
   }
 })
 
@@ -55,7 +55,7 @@ router.post('/init', authMiddleware, openaiMiddleware, async (req, res) => {
 
       messages.push(completion.choices[0].message)
 
-      const newConversation = new Conversation({ userId: id, messages: JSON.stringify(messages), createAt: new Date().getTime() });
+      const newConversation = new Conversation({ userId: id, messages: JSON.stringify(messages), persona: PERSONAS[params.personaTypeIndex].name, createAt: new Date().getTime() });
       await newConversation.save()
       
       res.status(200).json(newConversation);
