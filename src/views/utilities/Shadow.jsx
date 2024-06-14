@@ -1,17 +1,17 @@
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
 // material-ui
-import { useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import Grid from '@mui/material/Grid';
+import { useTheme } from "@mui/material/styles";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import Grid from "@mui/material/Grid";
 
 // project imports
-import SubCard from 'ui-component/cards/SubCard';
-import MainCard from 'ui-component/cards/MainCard';
-import SecondaryAction from 'ui-component/cards/CardSecondaryAction';
+import SubCard from "ui-component/cards/SubCard";
+import MainCard from "ui-component/cards/MainCard";
+import SecondaryAction from "ui-component/cards/CardSecondaryAction";
 
-import { gridSpacing } from 'store/constant';
+import { gridSpacing } from "store/constant";
 
 // ===============================|| SHADOW BOX ||=============================== //
 
@@ -20,22 +20,22 @@ const ShadowBox = ({ shadow }) => {
     <Card sx={{ mb: 3, boxShadow: shadow }}>
       <Box
         sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
           py: 4.5,
-          bgcolor: 'primary.light',
-          color: 'grey.800'
+          bgcolor: "primary.light",
+          color: "grey.800",
         }}
       >
-        <Box sx={{ color: 'inherit' }}>boxShadow: {shadow}</Box>
+        <Box sx={{ color: "inherit" }}>boxShadow: {shadow}</Box>
       </Box>
     </Card>
   );
 };
 
 ShadowBox.propTypes = {
-  shadow: PropTypes.string.isRequired
+  shadow: PropTypes.string.isRequired,
 };
 
 // ===============================|| SHADOW BOX ||=============================== //
@@ -44,16 +44,16 @@ const CustomShadowBox = ({ shadow, label, color }) => (
   <Card sx={{ mb: 3, boxShadow: shadow }}>
     <Box
       sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
         py: 3,
         bgcolor: color,
-        color: 'background.default'
+        color: "background.default",
       }}
     >
-      {!label && <Box sx={{ color: 'inherit' }}>boxShadow: {shadow}</Box>}
-      {label && <Box sx={{ color: 'inherit' }}>{label}</Box>}
+      {!label && <Box sx={{ color: "inherit" }}>boxShadow: {shadow}</Box>}
+      {label && <Box sx={{ color: "inherit" }}>{label}</Box>}
     </Box>
   </Card>
 );
@@ -61,7 +61,7 @@ const CustomShadowBox = ({ shadow, label, color }) => (
 CustomShadowBox.propTypes = {
   shadow: PropTypes.string.isRequired,
   color: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired
+  label: PropTypes.string.isRequired,
 };
 
 // ============================|| UTILITIES SHADOW ||============================ //
@@ -70,7 +70,12 @@ const UtilitiesShadow = () => {
   const theme = useTheme();
 
   return (
-    <MainCard title="Basic Shadow" secondary={<SecondaryAction link="https://next.material-ui.com/system/shadows/" />}>
+    <MainCard
+      title="Basic Shadow"
+      secondary={
+        <SecondaryAction link="https://next.material-ui.com/system/shadows/" />
+      }
+    >
       <Grid container spacing={gridSpacing}>
         <Grid item xs={12}>
           <SubCard title="Basic Shadow">

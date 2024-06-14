@@ -1,23 +1,23 @@
 /*
  * @Author: Seven Yaoching-Chi 
- * @Date: 2024-05-23 18:45:26 
+ * @Date: 2024-06-06 15:46:51 
  * @Last Modified by: Seven Yaoching-Chi
- * @Last Modified time: 2024-05-23 18:49:31
+ * @Last Modified time: 2024-06-09 21:51:12
  */
 
 const path = require('path');
 const express = require('express');
 const session = require('express-session');
 const http = require('http');
-const fs = require('fs');
 const compression = require('compression');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const {
   log4js, log, err, warn,
 } = require('./helper/logger');
-const {port} = require('./config');
-require('./constant/global');
+const {port, mongo_url} = require('./config');
+const mongoose = require('mongoose');
+require('./constant/global')
 
 const infoLog = (...args) => log('[SERVER]', ...args);
 const errLog = (...args) => err('[SERVER]', ...args);
@@ -41,14 +41,19 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(compression()); // gzip mode.
 
 
+mongoose.connect(mongo_url, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
 http.createServer(app).listen(port, () => { infoLog(`Server running at: http://localhost:${port}`); });
 
-app.use('/', express.static(path.join(__dirname, '../build')));
-app.use('/v1', require('./api/common'));
-app.use('/v1/backend', require('./api/backend'));
+app.use('/', express.static(path.join(__dirname, '../dist')));
+app.use('/api/prompt', require('./api/openai'));
+app.use('/api/auth', require('./api/auth'));
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../build/index.html'));
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
 process

@@ -1,139 +1,320 @@
-import PropTypes from 'prop-types';
+import React, { useCallback, useContext, useMemo } from "react";
+import PropTypes from "prop-types";
 
 // material-ui
-import { Button, IconButton, ListItemButton, ListItemIcon, ListItemText, Typography, useTheme } from '@mui/material';
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import Stack from '@mui/material/Stack';
-import useMediaQuery from '@mui/material/useMediaQuery';
+import {
+  IconButton,
+  ImageList,
+  ImageListItem,
+  ImageListItemBar,
+  ListItemButton,
+  ListItemText,
+  Typography,
+  styled,
+  useTheme,
+} from "@mui/material";
+import Box from "@mui/material/Box";
+import Drawer from "@mui/material/Drawer";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 // third-party
-import PerfectScrollbar from 'react-perfect-scrollbar';
-import { BrowserView, MobileView } from 'react-device-detect';
+import PerfectScrollbar from "react-perfect-scrollbar";
+import { BrowserView, MobileView } from "react-device-detect";
 
 // project imports
-import MenuCard from './MenuCard';
-// import MenuList from './MenuList';
-import LogoSection from '../LogoSection';
-import Chip from 'ui-component/extended/Chip';
+import LogoSection from "../LogoSection";
 
-import { drawerWidth } from 'store/constant';
+import { drawerWidth } from "store/constant";
 import { RiStickyNoteAddLine } from "react-icons/ri";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import { initPrompt } from "store/prompt/actions";
+import { useEffect, useRef, useState } from "react";
+import DialogBox from "ui-component/Dialog";
+import AlertDialog from "ui-component/AlertDialog";
+import { SET_ALERT_OPEN } from "store/actions";
+const images = import.meta.glob(
+  "../../../assets/images/persona*.{png,jpg,jpeg,svg}",
+);
 
 // ==============================|| SIDEBAR DRAWER ||============================== //
-const menuItems = [
-  {id: '123', title: 'test'},
-  {id: '234', title: 'test2'},
-  {id: '345', title: 'test3'},
-  {id: '456', title: 'test4'}
-]
-const MenuList = () => {
-  return menuItems.map(item => {
+const MenuListContext = React.createContext({});
+
+const MenuItems = React.memo(
+  ({ title, item, createAt, selected, handleNavigate }) => {
+    
+    const dateLabel = useCallback(
+      (createAt) => (
+        <Typography
+          variant="caption"
+          display="block"
+          gutterBottom
+          sx={{ fontSize: 10, opacity: createAt ? 1 : 0 }}
+        >
+          {new Date(createAt).toLocaleString()}
+        </Typography>
+      ),
+      [],
+    );
+
+    const subTitleLabel = useCallback(
+      (persona) => (
+        <Typography
+          variant="caption"
+          display="block"
+          gutterBottom
+          sx={{ fontSize: 10, opacity: persona ? 1 : 0 }}
+        >
+          {persona}
+        </Typography>
+      ),
+      [],
+    );
+
+    const titleLabel = useCallback(
+      (title) => <Typography color="inherit">{title}</Typography>,
+      [],
+    );
     return (
       <ListItemButton
-        key={item.id}
-        // selected={customization.isOpen.findIndex((id) => id === item.id) > -1}
-        // onClick={() => itemHandler(item.id)}
+        sx={{ py: 0.5, my: 0.5, borderRadius: "12px" }}
+        selected={selected}
+        data-cid={item._id}
+        onClick={handleNavigate}
       >
-        {/* <ListItemIcon sx={{ my: 'auto', minWidth: !item?.icon ? 18 : 36 }}>{itemIcon}</ListItemIcon> */}
         <ListItemText
-          primary={
-            <Typography color="inherit">
-              {item.title}
-            </Typography>
-          }
-          secondary={
-            item.caption && (
-              <Typography variant="caption" display="block" gutterBottom>
-                {item.caption}
-              </Typography>
-            )
-          }
+          sx={{ my: 0 }}
+          primary={titleLabel(title)}
+          secondary={subTitleLabel(item.persona)}
+          // secondary={dateLabel(createAt)}
         />
-        {/* {item.chip && (
-          <Chip
-            color={item.chip.color}
-            variant={item.chip.variant}
-            size={item.chip.size}
-            label={item.chip.label}
-            avatar={item.chip.avatar && <Avatar>{item.chip.avatar}</Avatar>}
-          />
-        )} */}
       </ListItemButton>
-    )
-  })
-}
+    );
+  },
+);
 
-const AddButton = () => {
+const MenuList = () => {
+  const conversations = useSelector((state) => state.user.conversations);
+  const { conversationId } = useContext(MenuListContext);
+  const navigate = useNavigate();
+
+  const handleNavigate = useCallback(
+    (e) => {
+      navigate(`/conversation/${e.currentTarget.dataset.cid}`);
+    },
+    [navigate],
+  );
+
+  return conversations.map((c, index) => {
+    return (
+      <MenuItems
+        key={c._id}
+        item={c}
+        title={`Conversation-${conversations.length - index}`}
+        selected={conversationId === c._id}
+        handleNavigate={handleNavigate}
+      />
+    );
+  });
+};
+
+const AddButton = ({ handleClick }) => {
   return (
-    <Box sx={{display: 'flex', justifyContent: 'end'}}>
-      <IconButton variant='outlined'>
-        <RiStickyNoteAddLine/>
+    <Box sx={{ display: "flex", justifyContent: "end" }}>
+      <IconButton variant="outlined" onClick={handleClick}>
+        <RiStickyNoteAddLine />
       </IconButton>
     </Box>
-  )
-}
+  );
+};
+
+
+
+const ImageTitle = styled(ImageListItemBar)(({ theme }) => ({
+  backgroundColor: theme.palette.primary.main,
+  opacity: 0.9,
+  color: theme.palette.primary.contrastText,
+  ".MuiImageListItemBar-titleWrap": {
+    paddingTop: 3,
+    paddingBottom: 3,
+  },
+}));
+
+const ImageBox = ({ item, index, cols, rows, handleClick }) => {
+  const theme = useTheme();
+  // Find the correct image import
+  const imagePath = Object.keys(images).find((path) =>
+    path.includes(item.image),
+  );
+
+  // Use React state to handle the dynamically imported images
+  const [src, setSrc] = useState(null);
+
+  const srcset = useCallback((image, size, rows = 1, cols = 1) => {
+    return {
+      src: `${image}?w=${size * cols}&h=${size * rows}&fit=crop&auto=format`,
+      srcSet: `${image}?w=${size * cols}&h=${
+        size * rows
+      }&fit=crop&auto=format&dpr=2 2x`,
+    };
+  }, []);
+
+  useEffect(() => {
+    if (imagePath) {
+      images[imagePath]().then((module) => {
+        setSrc(module.default);
+      });
+    }
+  }, [imagePath]);
+
+  // Render the image
+  return (
+    <ImageListItem
+      cols={cols || 1}
+      rows={rows || 1}
+      onClick={handleClick}
+      sx={{ cursor: "pointer" }}
+    >
+      <img {...srcset(src, 200, rows, cols)} alt={item.image} loading="lazy" />
+      <ImageTitle
+        theme={theme}
+        title={item.name}
+        // subtitle={item.name}
+      />
+    </ImageListItem>
+  );
+};
+const PersonaBox = React.memo(
+  ({ isOpenAddDialog, personas, handleClose, handlePersonaClick }) => {
+    return (
+      <DialogBox
+        isOpen={isOpenAddDialog}
+        title="What's the style you're looking for?"
+        handleClose={handleClose}
+      >
+        {personas && (
+          <ImageList variant="quilted" cols={4} rowHeight={200}>
+            {personas.map((item, index) => (
+              <ImageBox
+                key={item.name}
+                item={item}
+                index={index}
+                cols={index === 0 ? 2 : 1}
+                rows={index === 0 ? 2 : 1}
+                handleClick={() => handlePersonaClick(index)}
+              />
+            ))}
+          </ImageList>
+        )}
+      </DialogBox>
+    );
+  },
+);
 
 const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
+  const dispatch = useDispatch();
+  const { conversationId } = useParams();
+  const navigate = useNavigate();
   const theme = useTheme();
-  const matchUpMd = useMediaQuery(theme.breakpoints.up('md'));
+  const userSettings = useSelector((state) => state.user.userInfo);
+  const matchUpMd = useMediaQuery(theme.breakpoints.up("md"));
+  const [isOpenAddDialog, setOpenAddDialog] = useState(false);
+
+  const personas = useMemo(
+    () => userSettings?.personas,
+    [userSettings?.personas],
+  );
+
+  const handleAddConversation = async (type) => {
+    if (personas[type]) {
+      try {
+        const c = await dispatch(initPrompt(2, type));
+        // await dispatch(getUserConversations())
+        navigate(`/conversation/${c.conversationId}`);
+      } catch (err) {
+        console.log(err);
+        dispatch({
+          type: SET_ALERT_OPEN,
+          alertOpen: true,
+          alertMsg: err.response.data || err.message,
+        });
+      }
+    }
+  };
+
+  const handleOpenAddDialog = useCallback(() => setOpenAddDialog(true), []);
+  const handleCloseAddDialog = useCallback(() => setOpenAddDialog(false), []);
+  const handlePersonaClick = (type) => {
+    handleAddConversation(type);
+    setOpenAddDialog(false);
+  };
+  const contextValues = useMemo(() => ({ conversationId }), [conversationId]);
 
   const drawer = (
     <>
-      <Box sx={{ display: { xs: 'block', md: 'none' } }}>
-        <Box sx={{ display: 'flex', p: 2, mx: 'auto' }}>
-          {/* <LogoSection /> */}
+      <Box sx={{ display: { xs: "block", md: "none" } }}>
+        <Box sx={{ display: "flex", p: 2, mx: "auto" }}>
+          <LogoSection />
         </Box>
       </Box>
+      <PersonaBox
+        isOpenAddDialog={isOpenAddDialog}
+        personas={personas}
+        handleClose={handleCloseAddDialog}
+        handlePersonaClick={handlePersonaClick}
+      />
       <BrowserView>
+        <AlertDialog />
         <PerfectScrollbar
           component="div"
           style={{
-            height: !matchUpMd ? 'calc(100vh - 56px)' : 'calc(100vh - 88px)',
-            paddingLeft: '16px',
-            paddingRight: '16px'
+            height: !matchUpMd ? "calc(100vh - 56px)" : "calc(100vh - 88px)",
+            paddingLeft: "16px",
+            paddingRight: "16px",
           }}
         >
-          <AddButton/>
-          <MenuList />
-          {/* <MenuCard /> */}
-          {/* <Stack direction="row" justifyContent="center" sx={{ mb: 2 }}>
-            <Chip label={import.meta.env.VITE_APP_VERSION} disabled chipcolor="secondary" size="small" sx={{ cursor: 'pointer' }} />
-          </Stack> */}
+          <AddButton handleClick={handleOpenAddDialog} />
+          <MenuListContext.Provider value={contextValues}>
+            <MenuList />
+          </MenuListContext.Provider>
         </PerfectScrollbar>
       </BrowserView>
       <MobileView>
         <Box sx={{ px: 2 }}>
-          {/* <MenuList /> */}
-          {/* <MenuCard /> */}
-          {/* <Stack direction="row" justifyContent="center" sx={{ mb: 2 }}>
-            <Chip label={import.meta.env.VITE_APP_VERSION} disabled chipcolor="secondary" size="small" sx={{ cursor: 'pointer' }} />
-          </Stack> */}
+          <AddButton handleClick={handleOpenAddDialog} />
+          <MenuListContext.Provider value={contextValues}>
+            <MenuList />
+          </MenuListContext.Provider>
         </Box>
       </MobileView>
     </>
   );
 
-  const container = window !== undefined ? () => window.document.body : undefined;
+  const container =
+    window !== undefined ? () => window.document.body : undefined;
 
   return (
-    <Box component="nav" sx={{ flexShrink: { md: 0 }, width: matchUpMd ? drawerWidth : 'auto' }} aria-label="mailbox folders">
+    <Box
+      component="nav"
+      sx={{ flexShrink: { md: 0 }, width: matchUpMd ? drawerWidth : "auto" }}
+      aria-label="mailbox folders"
+    >
       <Drawer
         container={container}
-        variant={matchUpMd ? 'persistent' : 'temporary'}
+        variant={matchUpMd ? "persistent" : "temporary"}
         anchor="left"
         open={drawerOpen}
         onClose={drawerToggle}
         sx={{
-          '& .MuiDrawer-paper': {
+          "& .MuiDrawer-paper": {
             width: drawerWidth,
             background: theme.palette.background.default,
             color: theme.palette.text.primary,
-            borderRight: 'none',
-            [theme.breakpoints.up('md')]: {
-              top: '88px'
-            }
-          }
+            borderRight: "none",
+            [theme.breakpoints.up("md")]: {
+              top: "88px",
+            },
+          },
         }}
         ModalProps={{ keepMounted: true }}
         color="inherit"
@@ -147,7 +328,7 @@ const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
 Sidebar.propTypes = {
   drawerOpen: PropTypes.bool,
   drawerToggle: PropTypes.func,
-  window: PropTypes.object
+  window: PropTypes.object,
 };
 
 export default Sidebar;

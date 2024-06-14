@@ -1,0 +1,25 @@
+#! /bin/sh
+
+root=$(pwd)
+echo "creating build folder..."
+rm -rf dockerSrc
+mkdir dockerSrc
+rsync -av --exclude='node_modules' --exclude='dist' --exclude='server/node_modules' --exclude='.git' . dockerSrc
+cd dockerSrc
+echo "fetching packages..."
+yarn install
+echo "compiling the sources..."
+yarn build
+echo "setting the proxy server..."
+mkdir tmp
+cp -rf Dockerfile dist server tmp
+cd tmp/server
+yarn install
+cd ..
+echo "dockerrizing..."
+docker build -t munch-mate .
+# docker save -o munch-mate munch-mate
+
+echo "clean unused files..."
+cd $root; rm -rf dockerSrc
+echo "All finished."
