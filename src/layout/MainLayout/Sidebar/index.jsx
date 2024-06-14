@@ -36,55 +36,59 @@ import { SET_ALERT_OPEN } from "store/actions";
 // ==============================|| SIDEBAR DRAWER ||============================== //
 const MenuListContext = React.createContext({});
 
-const MenuItems = React.memo(({ id, title, createAt, selected, handleNavigate }) => {
+const MenuItems = React.memo(
+  ({ id, title, createAt, selected, handleNavigate }) => {
+    const dateLabel = useCallback(
+      (createAt) => (
+        <Typography
+          variant="caption"
+          display="block"
+          gutterBottom
+          sx={{ fontSize: 10, opacity: createAt ? 1 : 0 }}
+        >
+          {new Date(createAt).toLocaleString()}
+        </Typography>
+      ),
+      [],
+    );
 
-  const dateLabel = useCallback(
-    (createAt) => (
-      <Typography
-        variant="caption"
-        display="block"
-        gutterBottom
-        sx={{ fontSize: 10, opacity: createAt ? 1 : 0 }}
+    const titleLabel = useCallback(
+      (title) => <Typography color="inherit">{title}</Typography>,
+      [],
+    );
+
+    // const handleLinkClick = useCallback((e) => {
+    //   handleNavigate(e)
+    // }, [])
+
+    return (
+      <ListItemButton
+        sx={{ py: 0.5, my: 0.5, borderRadius: "12px" }}
+        selected={selected}
+        data-cid={id}
+        onClick={handleNavigate}
       >
-        {new Date(createAt).toLocaleString()}
-      </Typography>
-    ),
-    [],
-  );
-
-  const titleLabel = useCallback(
-    (title) => <Typography color="inherit">{title}</Typography>,
-    [],
-  );
-
-  // const handleLinkClick = useCallback((e) => {
-  //   handleNavigate(e)
-  // }, [])
-
-  return (
-    <ListItemButton
-      sx={{ py: 0.5, my: 0.5, borderRadius: "12px" }}
-      selected={selected}
-      data-cid={id}
-      onClick={handleNavigate}
-    >
-      <ListItemText
-        sx={{ my: 0 }}
-        primary={titleLabel(title)}
-        secondary={dateLabel(createAt)}
-      />
-    </ListItemButton>
-  );
-});
+        <ListItemText
+          sx={{ my: 0 }}
+          primary={titleLabel(title)}
+          secondary={dateLabel(createAt)}
+        />
+      </ListItemButton>
+    );
+  },
+);
 
 const MenuList = () => {
   const conversations = useSelector((state) => state.user.conversations);
   const { conversationId } = useContext(MenuListContext);
   const navigate = useNavigate();
 
-  const handleNavigate = useCallback((e) => {
-    navigate(`/conversation/${e.currentTarget.dataset.cid}`);
-  }, [navigate]);
+  const handleNavigate = useCallback(
+    (e) => {
+      navigate(`/conversation/${e.currentTarget.dataset.cid}`);
+    },
+    [navigate],
+  );
 
   return conversations.map((c, index) => {
     return (
@@ -110,86 +114,86 @@ const AddButton = ({ handleClick }) => {
   );
 };
 
-const images = import.meta.glob('../../../assets/images/persona*.{png,jpg,jpeg,svg}');
+const images = import.meta.glob(
+  "../../../assets/images/persona*.{png,jpg,jpeg,svg}",
+);
 
 const ImageTitle = styled(ImageListItemBar)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
   opacity: 0.9,
   color: theme.palette.primary.contrastText,
-  '.MuiImageListItemBar-titleWrap': {
+  ".MuiImageListItemBar-titleWrap": {
     paddingTop: 3,
     paddingBottom: 3,
-  }
-}))
+  },
+}));
 
-const ImageBox = ({item, index, cols, rows, handleClick}) => {
-  const theme = useTheme()
-    // Find the correct image import
-    const imagePath = Object.keys(images).find(path => path.includes(item.image));
+const ImageBox = ({ item, index, cols, rows, handleClick }) => {
+  const theme = useTheme();
+  // Find the correct image import
+  const imagePath = Object.keys(images).find((path) =>
+    path.includes(item.image),
+  );
 
-    // Use React state to handle the dynamically imported images
-    const [src, setSrc] = useState(null);
+  // Use React state to handle the dynamically imported images
+  const [src, setSrc] = useState(null);
 
-    const srcset = useCallback((image, size, rows = 1, cols = 1) => {
-      return {
-        src: `${image}?w=${size * cols}&h=${size * rows}&fit=crop&auto=format`,
-        srcSet: `${image}?w=${size * cols}&h=${
-          size * rows
-        }&fit=crop&auto=format&dpr=2 2x`,
-      };
-    }, [])
+  const srcset = useCallback((image, size, rows = 1, cols = 1) => {
+    return {
+      src: `${image}?w=${size * cols}&h=${size * rows}&fit=crop&auto=format`,
+      srcSet: `${image}?w=${size * cols}&h=${
+        size * rows
+      }&fit=crop&auto=format&dpr=2 2x`,
+    };
+  }, []);
 
-    useEffect(() => {
-      if (imagePath) {
-        images[imagePath]().then(module => {
-          setSrc(module.default);
-        });
-      }
-    }, [imagePath]);
+  useEffect(() => {
+    if (imagePath) {
+      images[imagePath]().then((module) => {
+        setSrc(module.default);
+      });
+    }
+  }, [imagePath]);
 
-    // Render the image
-    return (
-      <ImageListItem cols={cols || 1} rows={rows || 1} onClick={handleClick} sx={{cursor: 'pointer'}}>
-        <img
-          {...srcset(src, 200, rows, cols)}
-          alt={item.image}
-          loading="lazy"
-        />
-        <ImageTitle
-          theme={theme}
-          title={item.name}
-          // subtitle={item.name}
-        />
-      </ImageListItem>
-    )
-}
+  // Render the image
+  return (
+    <ImageListItem
+      cols={cols || 1}
+      rows={rows || 1}
+      onClick={handleClick}
+      sx={{ cursor: "pointer" }}
+    >
+      <img {...srcset(src, 200, rows, cols)} alt={item.image} loading="lazy" />
+      <ImageTitle
+        theme={theme}
+        title={item.name}
+        // subtitle={item.name}
+      />
+    </ImageListItem>
+  );
+};
 const PersonaBox = React.memo(
   ({ isOpenAddDialog, personas, handleClose, handlePersonaClick }) => {
-    
     return (
       <DialogBox
         isOpen={isOpenAddDialog}
         title="What's the style you're looking for?"
         handleClose={handleClose}
       >
-        {personas && 
-          <ImageList
-            variant="quilted"
-            cols={4}
-            rowHeight={200}
-          >
+        {personas && (
+          <ImageList variant="quilted" cols={4} rowHeight={200}>
             {personas.map((item, index) => (
-              <ImageBox 
-                key={item.name} 
+              <ImageBox
+                key={item.name}
                 item={item}
                 index={index}
-                cols={index === 0 ? 2 : 1} 
+                cols={index === 0 ? 2 : 1}
                 rows={index === 0 ? 2 : 1}
                 handleClick={() => handlePersonaClick(index)}
               />
             ))}
           </ImageList>
-        }
+        )}
       </DialogBox>
     );
   },
@@ -200,11 +204,14 @@ const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
   const { conversationId } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
-  const userSettings = useSelector(state => state.user.userInfo)
+  const userSettings = useSelector((state) => state.user.userInfo);
   const matchUpMd = useMediaQuery(theme.breakpoints.up("md"));
   const [isOpenAddDialog, setOpenAddDialog] = useState(false);
 
-  const personas = useMemo(() => userSettings?.personas, [userSettings?.personas])
+  const personas = useMemo(
+    () => userSettings?.personas,
+    [userSettings?.personas],
+  );
 
   const handleAddConversation = async (type) => {
     if (personas[type]) {
