@@ -2,7 +2,7 @@
  * @Author: Seven Yaoching-Chi
  * @Date: 2022-11-29 14:31:01
  * @Last Modified by: Seven Yaoching-Chi
- * @Last Modified time: 2024-06-14 17:37:47
+ * @Last Modified time: 2024-06-14 22:19:23
  */
 
 const express = require('express');
@@ -16,14 +16,14 @@ const gen_sys_msg = (msg) => ({ role: "system", content: msg })
 const gen_assist_msg = (msg, isFunctionCall=false) => ({ role: "assistant", content: msg, isFunctionCall })
 const gen_user_msg = (msg) => ({ role: "user", content: msg })
 
-const handleFunctionCall = async (openai, responseMsg) => {
+const handleFunctionCall = async (openai, responseMsg, user) => {
   const funcCallMsgs = openai.functionCall(responseMsg)
   // handle the async function call for the results.
   const allMsgs = await Promise.all(funcCallMsgs.map(res => res.content))
   for (let i = 0; i < funcCallMsgs.length; i++) {
     funcCallMsgs[i].content = allMsgs[i]
   }
-  console.log(funcCallMsgs)
+  console.log({user, funcCallMsgs})
   return funcCallMsgs
 }
 
@@ -61,7 +61,7 @@ router.post('/init', authMiddleware, openaiMiddleware, async (req, res) => {
 
       if (responseMsg.tool_calls) {
         messages.push(responseMsg)
-        const funcCallMsgs = await handleFunctionCall(openai, responseMsg)
+        const funcCallMsgs = await handleFunctionCall(openai, responseMsg, req.user)
         messages = [...messages, ...funcCallMsgs]
         completion = await openai.createConversation(messages)
         responseMsg = gen_assist_msg(completion.choices[0].message.content, true)
@@ -95,7 +95,7 @@ router.post('/msg', authMiddleware, openaiMiddleware, async (req, res) => {
       
       let responseMsg = completion.choices[0].message
       if (responseMsg.tool_calls) {
-        const funcCallMsgs = await handleFunctionCall(openai, responseMsg)
+        const funcCallMsgs = await handleFunctionCall(openai, responseMsg, req.user)
         messages.push(responseMsg)
         messages = [...messages, ...funcCallMsgs]
         completion = await openai.createConversation(messages)
