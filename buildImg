@@ -17,7 +17,8 @@ cd tmp/server
 yarn install
 cd ..
 echo "dockerrizing..."
-docker build -t munch-mate .
+docker build -t sevenchi/munchmate .
+docker push sevenchi/munchmate:latest
 # docker save -o munch-mate munch-mate
 
 echo "clean unused files..."
