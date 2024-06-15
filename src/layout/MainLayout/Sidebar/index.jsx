@@ -42,7 +42,6 @@ const MenuListContext = React.createContext({});
 
 const MenuItems = React.memo(
   ({ title, item, createAt, selected, handleNavigate }) => {
-    
     const dateLabel = useCallback(
       (createAt) => (
         <Typography
@@ -127,8 +126,6 @@ const AddButton = ({ handleClick }) => {
     </Box>
   );
 };
-
-
 
 const ImageTitle = styled(ImageListItemBar)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,

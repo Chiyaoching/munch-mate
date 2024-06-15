@@ -2,7 +2,7 @@
  * @Author: Seven Yaoching-Chi
  * @Date: 2022-11-29 14:31:01
  * @Last Modified by: Seven Yaoching-Chi
- * @Last Modified time: 2024-06-14 00:40:36
+ * @Last Modified time: 2024-06-14 16:58:00
  */
 
 const express = require('express');
@@ -21,6 +21,17 @@ function resolve(dir) {
 const gen_sys_msg = (msg) => ({ role: "system", content: msg })
 const gen_assist_msg = (msg, isFunctionCall=false) => ({ role: "assistant", content: msg, isFunctionCall })
 const gen_user_msg = (msg) => ({ role: "user", content: msg })
+
+const handleFunctionCall = async (openai, responseMsg) => {
+  const funcCallMsgs = openai.functionCall(responseMsg)
+  // handle the async function call for the results.
+  const allMsgs = await Promise.all(funcCallMsgs.map(res => res.content))
+  for (let i = 0; i < funcCallMsgs.length; i++) {
+    funcCallMsgs[i].content = allMsgs[i]
+  }
+  console.log(funcCallMsgs)
+  return funcCallMsgs
+}
 
 router.get('/conversations', authMiddleware, async (req, res) => {
   if (req.user) {
@@ -48,12 +59,21 @@ router.post('/init', authMiddleware, openaiMiddleware, async (req, res) => {
   const params = req.body;
   if (!isNaN(params.sysContentIndex) && !isNaN(params.personaTypeIndex) && req.user) {
     const {id} = req.user
-    const messages = [gen_sys_msg(SYS_CONTENTS[params.sysContentIndex] + PERSONAS[params.personaTypeIndex].content)]
+    let messages = [gen_sys_msg(SYS_CONTENTS[params.sysContentIndex] + PERSONAS[params.personaTypeIndex].content)]
     const openai = global.currentUsers[id].openAIInfo.openai
     try {
-      const completion = await openai.createConversation(messages)
+      let completion = await openai.createConversation(messages, TOOLS, 'auto')
+      let responseMsg = completion.choices[0].message
 
-      messages.push(completion.choices[0].message)
+      if (responseMsg.tool_calls) {
+        messages.push(responseMsg)
+        const funcCallMsgs = await handleFunctionCall(openai, responseMsg)
+        messages = [...messages, ...funcCallMsgs]
+        completion = await openai.createConversation(messages)
+        responseMsg = gen_assist_msg(completion.choices[0].message.content, true)
+      }
+
+      messages.push(responseMsg)
 
       const newConversation = new Conversation({ userId: id, messages: JSON.stringify(messages), persona: PERSONAS[params.personaTypeIndex].name, createAt: new Date().getTime() });
       await newConversation.save()
@@ -81,18 +101,11 @@ router.post('/msg', authMiddleware, openaiMiddleware, async (req, res) => {
       
       let responseMsg = completion.choices[0].message
       if (responseMsg.tool_calls) {
+        const funcCallMsgs = await handleFunctionCall(openai, responseMsg)
         messages.push(responseMsg)
-        const funcCallMsgs = openai.functionCall(responseMsg)
-        // handle the async function call for the results.
-        const allMsgs = await Promise.all(funcCallMsgs.map(res => res.content))
-        for (let i = 0; i < funcCallMsgs.length; i++) {
-          funcCallMsgs[i].content = allMsgs[i]
-        }
-        console.log(funcCallMsgs)
         messages = [...messages, ...funcCallMsgs]
         completion = await openai.createConversation(messages)
         responseMsg = gen_assist_msg(completion.choices[0].message.content, true)
-        // console.log(responseMsg)
       }
 
       messages.push(responseMsg)

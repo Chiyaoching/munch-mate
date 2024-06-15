@@ -2,11 +2,13 @@ import {
   INIT_CONVERSATION,
   ADD_USER_MESSAGE,
   IS_LOADING_RESPONSE,
+  IS_LOADING_INIT,
 } from "./actions";
 
 export const initialState = {
   messages: [],
   isLoading: false,
+  isInit: false,
   currConversationId: null,
 };
 
@@ -26,8 +28,14 @@ const promptReducer = (state = initialState, action) => {
     case IS_LOADING_RESPONSE:
       return {
         ...state,
-        isLoading: action.isLoading
-      }
+        isLoading: action.isLoading,
+      };
+    case IS_LOADING_INIT:
+      return {
+        ...state,
+        isInit: action.isInit,
+      };
+
     default:
       return state;
   }

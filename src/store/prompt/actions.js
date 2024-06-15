@@ -5,6 +5,7 @@ import { ADD_USER_CONVERSATION } from "store/user/actions";
 export const ADD_USER_MESSAGE = "ADD_USER_MESSAGE";
 export const INIT_CONVERSATION = "INIT_CONVERSATION";
 export const IS_LOADING_RESPONSE = "IS_LOADING_RESPONSE";
+export const IS_LOADING_INIT = "IS_LOADING_INIT";
 
 export const sendPrompt = (prompt, conversationId) => async (dispatch) => {
   try {
@@ -30,6 +31,8 @@ export const initPrompt =
   (sysContentIndex, personaTypeIndex) => async (dispatch) => {
     return new Promise(async (resolve, reject) => {
       try {
+        dispatch({ type: IS_LOADING_INIT, isInit: true });
+
         const res = await api.post("/api/prompt/init", {
           sysContentIndex,
           personaTypeIndex,
@@ -47,6 +50,8 @@ export const initPrompt =
         resolve({ ...res.data, conversationId: res.data._id });
       } catch (err) {
         reject(err);
+      } finally {
+        dispatch({ type: IS_LOADING_INIT, isInit: false });
       }
     });
   };

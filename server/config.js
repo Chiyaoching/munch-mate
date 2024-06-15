@@ -2,7 +2,7 @@
  * @Author: Seven Yaoching-Chi 
  * @Date: 2024-06-06 15:46:41 
  * @Last Modified by: Seven Yaoching-Chi
- * @Last Modified time: 2024-06-13 16:53:53
+ * @Last Modified time: 2024-06-14 15:40:09
  */
 
 const fs = require('fs');
@@ -18,6 +18,8 @@ const config = {
   port: argv.port || process.env.port || 20077,
   openai_key: argv.openai_key || process.env.openai_key || '',
   openai_model: argv.openai_model || process.env.openai_model || 'gpt-4o',
+  embedding_model: argv.embedding_model || process.env.embedding_model || 'text-embedding-3-small',
+  model_temperature: argv.model_temperature || process.env.model_temperature || 0.2,
   pinecone_key: argv.pinecone_key || process.env.pinecone_key || '',
   pinecone_index: argv.pinecone_index || process.env.pinecone_index || '',
   pinecone_namespace: argv.pinecone_namespace || process.env.pinecone_namespace || '',

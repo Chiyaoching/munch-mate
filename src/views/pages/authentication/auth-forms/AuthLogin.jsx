@@ -30,7 +30,6 @@ import AnimateButton from "ui-component/extended/AnimateButton";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
-
 import { loginUser } from "store/user/actions";
 
 // ============================|| FIREBASE - LOGIN ||============================ //

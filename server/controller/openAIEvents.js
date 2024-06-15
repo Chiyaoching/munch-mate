@@ -2,10 +2,10 @@
  * @Author: Seven Yaoching-Chi 
  * @Date: 2024-06-07 14:56:07 
  * @Last Modified by: Seven Yaoching-Chi
- * @Last Modified time: 2024-06-13 16:54:21
+ * @Last Modified time: 2024-06-14 16:11:01
  */
 
-const {openai_model, pinecone_key, pinecone_namespace, pinecone_index} = require('../config');
+const {openai_model, embedding_model, model_temperature, pinecone_key, pinecone_namespace, pinecone_index} = require('../config');
 const OpenAI = require('openai');
 const {RESTAURANTS} = require('../constant/constants')
 const PineconeEvents = require('./pineconeEvents')
@@ -15,8 +15,8 @@ class OpenAIEvents {
     this.apiKey = apiKey;
     this.openai = new OpenAI({apiKey})
     this.model = openai_model
-    this.embeddingModel = 'text-embedding-3-small'
-    this.temperature = 0
+    this.embeddingModel = embedding_model
+    this.temperature = model_temperature
     this.availableFunctions = {
       "getRestaurants": this.getRestaurants.bind(this),
       "makeReservation": this.makeReservation.bind(this),

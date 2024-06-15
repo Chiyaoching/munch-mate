@@ -1,14 +1,10 @@
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 // material-ui
 import {
   Grid,
   InputAdornment,
   OutlinedInput,
+  Skeleton,
   useTheme,
 } from "@mui/material";
 // assets
@@ -17,14 +13,13 @@ import PerfectScrollbar from "react-perfect-scrollbar";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import {
-  initPrompt,
   sendPrompt,
   getUserConversation,
 } from "store/prompt/actions";
 
 import { AssistantBox, AssistantLoadingBox } from "./chatbot/AssistantBox";
 import UserBox from "./chatbot/UserBox";
-import debounce from 'hooks/debounce.js';
+import debounce from "hooks/debounce.js";
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
 const Dashboard = () => {
@@ -33,6 +28,7 @@ const Dashboard = () => {
   const dispatch = useDispatch();
   const messages = useSelector((state) => state.prompt.messages);
   const isAssistantLoading = useSelector((state) => state.prompt.isLoading);
+  const isPageInit = useSelector((state) => state.prompt.isInit);
   const [chatboxHeight, setChatboxHeight] = useState(
     window.innerHeight -
       parseInt(theme.typography.mainContent.marginTop, 10) -
@@ -85,8 +81,11 @@ const Dashboard = () => {
       await dispatch(sendPrompt(prompt, conversationId));
       setPrompt("");
     }
-  }
-  const handleSubmitPrompt = useCallback(debounce(submitPrompt, 500), [prompt, conversationId]);
+  };
+  const handleSubmitPrompt = useCallback(debounce(submitPrompt, 500), [
+    prompt,
+    conversationId,
+  ]);
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
@@ -130,8 +129,19 @@ const Dashboard = () => {
             alignContent: "flex-start",
           }}
         >
-          {renderMessage(messages)}
-          <AssistantLoadingBox isAssistantLoading={isAssistantLoading} />
+          {isPageInit ? (
+            <Skeleton
+              variant="rounded"
+              sx={{ my: 2 }}
+              height={chatboxHeight - 10}
+              width="100%"
+            />
+          ) : (
+            renderMessage(messages)
+          )}
+          <AssistantLoadingBox
+            isAssistantLoading={isAssistantLoading}
+          />
         </Grid>
       </PerfectScrollbar>
       <Grid item sx={{ width: "70%", marginLeft: "auto", marginRight: "auto" }}>
@@ -141,7 +151,7 @@ const Dashboard = () => {
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Set prompt here..."
-          disabled={isAssistantLoading}
+          disabled={isAssistantLoading || isPageInit}
           onKeyDown={handleKeyDown}
           endAdornment={
             <InputAdornment position="end" sx={{ cursor: "pointer" }}>

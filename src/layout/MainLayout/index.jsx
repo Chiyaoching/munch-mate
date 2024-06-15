@@ -11,13 +11,8 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { CssBaseline, styled, useTheme } from "@mui/material";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
-// import Customization from '../Customization';
-import Breadcrumbs from "ui-component/extended/Breadcrumbs";
 import { SET_MENU } from "store/actions";
 import { drawerWidth } from "store/constant";
-
-// assets
-import { IconChevronRight } from "@tabler/icons-react";
 
 import { isAuthenticated } from "utils/auth";
 import { useEffect } from "react";
@@ -114,11 +109,8 @@ const MainLayout = () => {
 
       {/* main content */}
       <Main theme={theme} open={leftDrawerOpened}>
-        {/* breadcrumb */}
-        {/* <Breadcrumbs separator={IconChevronRight} navigation={navigation} icon title rightAlign /> */}
         <Outlet />
       </Main>
-      {/* <Customization /> */}
     </Box>
   );
 };
