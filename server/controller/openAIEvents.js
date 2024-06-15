@@ -2,7 +2,7 @@
  * @Author: Seven Yaoching-Chi 
  * @Date: 2024-06-07 14:56:07 
  * @Last Modified by: Seven Yaoching-Chi
- * @Last Modified time: 2024-06-14 16:11:01
+ * @Last Modified time: 2024-06-14 17:33:18
  */
 
 const {openai_model, embedding_model, model_temperature, pinecone_key, pinecone_namespace, pinecone_index} = require('../config');
@@ -79,7 +79,6 @@ class OpenAIEvents {
     const list = RESTAURANTS[locationLowerCase] || []
     const restaurants = type ? list.filter(item => item.type === type.toUpperCase()) : list
     // verify the result, if no result we look for the knowledge base.
-    console.log(restaurants)
     if (restaurants.length === 0) {
       const res = await this.knowledgeBase({location, cuisine: type})
       return res

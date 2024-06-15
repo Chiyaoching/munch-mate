@@ -2,7 +2,7 @@
  * @Author: Seven Yaoching-Chi 
  * @Date: 2024-06-13 00:21:10 
  * @Last Modified by: Seven Yaoching-Chi
- * @Last Modified time: 2024-06-13 15:43:41
+ * @Last Modified time: 2024-06-14 17:40:25
  */
 
 const { Pinecone } = require('@pinecone-database/pinecone')
@@ -22,12 +22,9 @@ class PineconeEvents {
       vector: query,
       includeValues: true,
       includeMetadata: true,
-      // filter: { genre: { '$eq': 'action' }}
     });
-
     return res
   }
-
 }
 
 module.exports = PineconeEvents

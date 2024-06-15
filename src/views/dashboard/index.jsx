@@ -76,9 +76,9 @@ const Dashboard = () => {
     }
   };
 
-  const submitPrompt = async () => {
-    if (prompt) {
-      await dispatch(sendPrompt(prompt, conversationId));
+  const submitPrompt = () => {
+    if (!isAssistantLoading && prompt) {
+      dispatch(sendPrompt(prompt, conversationId));
       setPrompt("");
     }
   };

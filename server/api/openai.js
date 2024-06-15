@@ -2,21 +2,15 @@
  * @Author: Seven Yaoching-Chi
  * @Date: 2022-11-29 14:31:01
  * @Last Modified by: Seven Yaoching-Chi
- * @Last Modified time: 2024-06-14 16:58:00
+ * @Last Modified time: 2024-06-14 17:37:47
  */
 
 const express = require('express');
 const router = express.Router();
-const path = require('path');
 const authMiddleware = require('../middleware/auth');
 const openaiMiddleware = require('../middleware/openai');
-const { handleAPIError: errorHandler } = require('../helper/errorHandler');
 const Conversation = require('../models/conversation')
 const {TOOLS, SYS_CONTENTS, PERSONAS} = require('../constant/constants');
-
-function resolve(dir) {
-  return path.join(__dirname, '..', dir);
-}
 
 const gen_sys_msg = (msg) => ({ role: "system", content: msg })
 const gen_assist_msg = (msg, isFunctionCall=false) => ({ role: "assistant", content: msg, isFunctionCall })
@@ -122,4 +116,5 @@ router.post('/msg', authMiddleware, openaiMiddleware, async (req, res) => {
   }
 
 });
+
 module.exports = router;
