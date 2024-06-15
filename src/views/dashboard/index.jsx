@@ -4,7 +4,6 @@ import {
   Grid,
   InputAdornment,
   OutlinedInput,
-  Skeleton,
   useTheme,
 } from "@mui/material";
 // assets
@@ -20,6 +19,7 @@ import {
 import { AssistantBox, AssistantLoadingBox } from "./chatbot/AssistantBox";
 import UserBox from "./chatbot/UserBox";
 import debounce from "hooks/debounce.js";
+import InitLoading from "./chatbot/InitLoading";
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
 const Dashboard = () => {
@@ -130,12 +130,7 @@ const Dashboard = () => {
           }}
         >
           {isPageInit ? (
-            <Skeleton
-              variant="rounded"
-              sx={{ my: 2 }}
-              height={chatboxHeight - 10}
-              width="100%"
-            />
+            <InitLoading/>
           ) : (
             renderMessage(messages)
           )}
